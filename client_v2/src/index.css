@@ -1,0 +1,497 @@
+:root {
+  /* =========================================
+     DEFAULT THEME: LIGHT MODE (Modern Glass)
+     ========================================= */
+
+  /* Primary Brand Colors */
+  --primary: #4f46e5;
+  /* Indigo 600 */
+  --primary-dark: #4338ca;
+  /* Indigo 700 */
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --secondary: #ec4899;
+  /* Pink 500 */
+  --accent: #06b6d4;
+  /* Cyan 500 */
+
+  /* Backgrounds */
+  /* Gradient Body for Glass Effect */
+  --bg-body-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  --bg-body: #f8fafc;
+
+  /* Glass Cards */
+  --bg-card: rgba(255, 255, 255, 0.65);
+  /* High transparency */
+  --bg-input: rgba(255, 255, 255, 0.5);
+  --bg-hover: rgba(255, 255, 255, 0.8);
+
+  /* Typography */
+  --text-primary: #000000;
+  /* Force Pure Black */
+  /* Slate 800 */
+  --text-secondary: #333333;
+  /* Dark Grey */
+  /* Slate 500 */
+  --text-inverse: #ffffff;
+
+  /* Borders & Effects */
+  --border: rgba(255, 255, 255, 0.4);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-stroke: rgba(255, 255, 255, 0.6);
+
+  --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  /* Glass Shadow */
+  --shadow-hover: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+  --input-border: #1e293b;
+  /* Dark border for light mode */
+
+  --radius: 20px;
+  /* Mooore rounded */
+  --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Safe Area */
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* =========================================
+   DARK MODE OVERRIDE (Midnight Neon Glass)
+   ========================================= */
+html[data-theme='dark'] {
+  --primary: #6366f1;
+  /* Indigo 500 */
+  --primary-dark: #4f46e5;
+  --primary-gradient: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  /* Neon Purple/Create */
+
+  --bg-body-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  /* Deep Space */
+
+  --bg-card: rgba(30, 41, 59, 0.4);
+  /* Very Transparent Dark */
+  --bg-input: rgba(15, 23, 42, 0.4);
+  --bg-hover: rgba(255, 255, 255, 0.1);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+
+  --border: rgba(255, 255, 255, 0.05);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-stroke: rgba(255, 255, 255, 0.1);
+
+  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+
+  --input-border: #f8fafc;
+  /* Light border for dark mode */
+
+  input,
+  select,
+  textarea {
+    color: #ffffff !important;
+    /* Force White in Dark Mode */
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background: var(--bg-body-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.6;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  overflow-x: hidden;
+  transition: background 0.5s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Typography */
+h1 {
+  font-size: 2.25rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+h2 {
+  font-size: 1.75rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.35rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  padding-left: calc(1.5rem + env(safe-area-inset-left));
+  padding-right: calc(1.5rem + env(safe-area-inset-right));
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Cards (Glassmorphism Core) */
+.card,
+.dashboard-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: var(--glass-border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: scaleIn 0.3s ease-out backwards;
+}
+
+.dashboard-card:active,
+.card:active {
+  transform: scale(0.98);
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  color: #000000 !important;
+  /* Force Black in Light Mode */
+  padding: 1rem 1.25rem;
+  min-height: 56px;
+  border-radius: var(--radius);
+  border-radius: var(--radius);
+  border: 1px solid var(--input-border);
+  /* Theme Aware Border */
+  background: var(--bg-input);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  appearance: none;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.1);
+  /* Slightly brighter on focus */
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 10px 20px -10px rgba(79, 70, 229, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+/* Navbar */
+.navbar {
+  background: rgba(255, 255, 255, 0.1);
+  /* Very transparent */
+  border-bottom: var(--glass-border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+html[data-theme='dark'] .navbar {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Mobile Controls */
+.btn-icon {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border: var(--glass-border);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+/* =========================================
+   MOBILE BOTTOM NAVIGATION
+   ========================================= */
+.bottom-nav-container {
+  display: none;
+}
+
+/* Hide desktop nav links on mobile */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .bottom-nav-container {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    z-index: 1000;
+    filter: drop-shadow(0 -4px 10px rgba(0, 0, 0, 0.1));
+  }
+
+  .nav-curve-path {
+    fill: rgba(255, 255, 255, 0.65);
+    /* Glassy Transparency */
+    stroke: var(--glass-stroke);
+    stroke-width: 1px;
+    transition: fill 0.3s ease;
+  }
+
+  html[data-theme='dark'] .nav-curve-path {
+    fill: rgba(30, 41, 59, 0.7);
+    /* Dark Glass */
+    stroke: var(--glass-stroke);
+  }
+
+  .bottom-nav-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    /* The SVG handles the fill usually, but we ensure transparency here */
+  }
+
+  /* The actual path styling is handled in BottomNav.jsx component via fill attributes */
+
+  .bottom-nav-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 10px;
+    position: relative;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-secondary);
+    padding-bottom: 10px;
+    transition: color 0.3s;
+  }
+
+  .nav-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+    /* Use CSS filter for dark/light mode adaptable icons if they are monochromatic */
+    filter: brightness(0);
+    /* Force icons to be black in Light Mode */
+  }
+
+  html[data-theme='dark'] .nav-icon-img {
+    filter: invert(1) brightness(2);
+    /* Make icons white in dark mode */
+  }
+
+  .bottom-nav-item.active .nav-icon-img {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  html[data-theme='dark'] .bottom-nav-item.active .nav-icon-img {
+    filter: invert(1) drop-shadow(0 0 5px var(--primary));
+  }
+
+  .bottom-nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .bottom-nav-item.active .bottom-nav-label {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  /* Center Floating Item */
+  .nav-item-center {
+    margin-bottom: 5px;
+  }
+
+  .nav-item-center .icon-wrapper {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.4);
+    border: 4px solid var(--bg-body);
+    /* Match body to look detached */
+    transition: transform 0.2s;
+  }
+
+  html[data-theme='dark'] .nav-item-center .icon-wrapper {
+    border-color: #0f172a;
+  }
+
+  .nav-item-center:active .icon-wrapper {
+    transform: scale(0.95);
+  }
+
+  .nav-item-center .nav-icon-img {
+    width: 30px;
+    height: 30px;
+    filter: none !important;
+    opacity: 1;
+    margin: 0;
+  }
+
+  .nav-item-center .bottom-nav-label {
+    display: none;
+  }
+
+  body {
+    padding-bottom: 90px;
+  }
+
+  /* Responsive Tables */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

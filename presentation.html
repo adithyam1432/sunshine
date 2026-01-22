@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Sunshine Inventory Project Presentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/blood.css" id="theme">
+    <style>
+        .reveal h1,
+        .reveal h2,
+        .reveal h3,
+        .reveal h4 {
+            text-transform: none;
+        }
+
+        .reveal ul,
+        .reveal ol {
+            font-size: 0.7em;
+        }
+
+        .reveal p {
+            font-size: 0.7em;
+        }
+
+        .slide-content {
+            text-align: left;
+        }
+
+        img {
+            max-height: 85vh;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border: none !important;
+            box-shadow: none !important;
+            margin: auto;
+            display: block;
+        }
+
+        .mermaid {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        code {
+            color: #eb4d4b;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        .two-col {
+            display: flex;
+            gap: 20px;
+        }
+
+        .col {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: ER Diagram -->
+            <section>
+                <h2>Entity Relationship Diagram (ERD)</h2>
+                <div style="height: 80vh; display: flex; align-items: center; justify-content: center;">
+                    <img src="./er_diagram.png" alt="ER Diagram"
+                        style="max-width: 100%; max-height: 100%; object-fit: contain; margin: 0; background: white; padding: 10px; border-radius: 8px;">
+                </div>
+            </section>
+
+            <!-- Slide 2: ER Model Explanation -->
+            <section>
+                <h3>Database Schema Overview</h3>
+                <p>The database consists of three main entities designed to track users, stock, and distribution
+                    history.</p>
+                <div class="slide-content">
+                    <div style="margin-bottom: 20px;">
+                        <h4>1. Users Table</h4>
+                        <ul>
+                            <li><strong>Purpose:</strong> Manages authentication and access control.</li>
+                            <li><strong>Attributes:</strong> <code>id</code> (PK), <code>username</code>,
+                                <code>password</code> (Hashed), <code>role</code> (Admin/User).
+                            </li>
+                            <li><strong>Key Feature:</strong> Stores secure, hashed passwords for security.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>2. Inventory Table</h4>
+                        <ul>
+                            <li><strong>Purpose:</strong> Stores the current stock levels of all items.</li>
+                            <li><strong>Attributes:</strong> <code>id</code> (PK), <code>name</code>,
+                                <code>category</code> (Uniform, Kit), <code>size</code> (S/M/L), <code>quantity</code>,
+                                <code>price</code>.
+                            </li>
+                            <li><strong>Key Feature:</strong> Categorizes items and tracks size logic (required for
+                                uniforms).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: ER Model Explanation (Continued) -->
+            <section>
+                <h3>Relationships & Transaction Logic</h3>
+                <div class="slide-content">
+                    <div style="margin-bottom: 20px;">
+                        <h4>3. Transactions Table</h4>
+                        <ul>
+                            <li><strong>Purpose:</strong> Logs every distribution event to a student.</li>
+                            <li><strong>Attributes:</strong> <code>id</code> (PK), <code>student_name</code>,
+                                <code>student_class</code>, <code>item_id</code> (FK), <code>quantity</code>,
+                                <code>date</code>.
+                            </li>
+                            <li><strong>Relationship:</strong> Linked to <code>Inventory</code> via
+                                <code>item_id</code>.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Relationships</h4>
+                        <ul>
+                            <li><strong>One-to-Many:</strong> One Inventory Item (<code>Inventory.id</code>) can have
+                                multiple Transaction records (<code>Transactions.item_id</code>).</li>
+                            <li>This allows the system to calculate stock deductions dynamically and keep a permanent
+                                history of who received what.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Technology Stack -->
+            <section>
+                <h3>Programming Languages & Database</h3>
+                <div class="slide-content">
+                    <h4>Core Languages</h4>
+                    <ul>
+                        <li><strong>JavaScript (ES6+):</strong> Used for both Frontend and Backend (Full Stack).</li>
+                        <li><strong>SQL:</strong> Used for database queries and management.</li>
+                        <li><strong>HTML5 / CSS3:</strong> For structure and styling.</li>
+                    </ul>
+                    <br>
+                    <h4>Database: SQLite</h4>
+                    <ul>
+                        <li><strong>Why Chosen?</strong>
+                            <ul>
+                                <li><strong>Serverless:</strong> No separate server process; runs from
+                                    <code>inventory.db</code>.
+                                </li>
+                                <li><strong>Zero Configuration:</strong> Easy to set up and move (portable).</li>
+                                <li><strong>Reliability:</strong> ACID compliant and standard SQL support.</li>
+                                <li><strong>Efficiency:</strong> Perfect for local apps where huge DB servers are
+                                    overkill.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 5: Frameworks & Libraries -->
+            <section>
+                <h3>Frameworks & Tools</h3>
+                <div class="slide-content">
+                    <div style="margin-bottom: 20px;">
+                        <h4>1. Frontend: React + Vite</h4>
+                        <ul>
+                            <li><strong>React:</strong> Component-based architecture (modular and reusable).</li>
+                            <li><strong>Vite:</strong> Modern build tool, instant server start, fast HMR.</li>
+                            <li><strong>Axios:</strong> For making HTTP requests to the backend.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>2. Backend: Node.js + Express</h4>
+                        <ul>
+                            <li><strong>Node.js:</strong> Runtime environment to execute JavaScript on the server.</li>
+                            <li><strong>Express:</strong> Minimalist web framework to handle API routes (GET, POST).
+                            </li>
+                            <li><strong>SQLite3:</strong> Driver to interact with the database file.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Project Objectives -->
+            <section>
+                <h3>Project Objectives</h3>
+                <div class="slide-content">
+                    <ul>
+                        <li><strong>Digitize Inventory:</strong> Move away from paper-based tracking to a digital
+                            system.</li>
+                        <li><strong>Automate Distribution:</strong> Streamline the process of handing out kits and
+                            uniforms.</li>
+                        <li><strong>Real-Time Tracking:</strong> Automatically update stock levels instantly when
+                            distributed.</li>
+                        <li><strong>Record Keeping:</strong> Maintain a searchable history of who received what and
+                            when.</li>
+                        <li><strong>Prevent Errors:</strong> Reduce human error in stock counting and student data
+                            entry.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 7: Problem Statement -->
+            <section>
+                <h3>Problem Statement</h3>
+                <div class="slide-content">
+                    <ul>
+                        <li><strong>Manual Inefficiency:</strong> Previous paper records were slow to update and hard to
+                            search.</li>
+                        <li><strong>Stock Discrepancies:</strong> Physical stock didn't match records due to unlogged
+                            items.</li>
+                        <li><strong>Lack of History:</strong> Difficult to verify past distributions (e.g., "Did Student
+                            A already get a kit?").</li>
+                        <li><strong>Reporting:</strong> Generating reports on total distributions or remaining stock was
+                            manual.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 8: System Flow Chart -->
+            <!-- Slide 8: Interactive System Flow -->
+            <section>
+                <h3>System Flow Diagram</h3>
+                <div id="flow-container"
+                    style="position: relative; width: 100%; height: 600px; margin: auto; background: #fff; border-radius: 8px; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; border: 1px solid #ddd; font-size: 13px;">
+
+                    <!-- Controls -->
+                    <div style="position: absolute; top: 10px; right: 10px; z-index: 20; display: flex; gap: 10px;">
+                        <button class="ctrl-btn start-btn" onclick="startSimulation()">
+                            ⚡ Start Simulation
+                        </button>
+                        <button class="ctrl-btn show-btn" onclick="showFullDiagram()">
+                            👁 Show Full Control
+                        </button>
+                    </div>
+
+                    <!-- SVG Layer -->
+                    <svg id="svg-layer"
+                        style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 1;">
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                                markerUnits="strokeWidth">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#1f77b4" />
+                            </marker>
+                            <marker id="arrow-active" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                                markerUnits="strokeWidth">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#2ecc71" />
+                            </marker>
+                        </defs>
+
+                        <!-- Defined Grid Paths with IDs -->
+                        <line id="l-1" class="f-conn" x1="50%" y1="60" x2="50%" y2="90" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+                        <line id="l-2" class="f-conn" x1="50%" y1="135" x2="50%" y2="170" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Valid Loopback (No) -->
+                        <path id="l-3" class="f-conn" d="M523,210 L650,210 L650,112 L570,112" fill="none"
+                            stroke="#1f77b4" stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Valid to Dash (Yes) -->
+                        <line id="l-4" class="f-conn" x1="50%" y1="250" x2="50%" y2="280" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Dash to Action -->
+                        <line id="l-5" class="f-conn" x1="50%" y1="325" x2="50%" y2="360" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Action to Distribute -->
+                        <line id="l-6" class="f-conn" x1="440" y1="400" x2="250" y2="400" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Action to Add Stock -->
+                        <line id="l-7" class="f-conn" x1="520" y1="400" x2="710" y2="400" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Left Branch Down -->
+                        <line id="l-8" class="f-conn" x1="180" y1="422" x2="180" y2="450" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+                        <line id="l-9" class="f-conn" x1="180" y1="495" x2="180" y2="520" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Right Branch Down -->
+                        <line id="l-10" class="f-conn" x1="780" y1="422" x2="780" y2="450" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+                        <line id="l-11" class="f-conn" x1="780" y1="495" x2="780" y2="520" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+
+                        <!-- Merge to End -->
+                        <path id="l-12" class="f-conn" d="M180,570 L180,580 L480,580" fill="none" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+                        <path id="l-13" class="f-conn" d="M780,570 L780,580 L480,580" fill="none" stroke="#1f77b4"
+                            stroke-width="2" marker-end="url(#arrow)" />
+                    </svg>
+
+                    <!-- Styles -->
+                    <style>
+                        /* Button Styles */
+                        .ctrl-btn {
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-weight: bold;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                            transition: transform 0.2s, box-shadow 0.2s;
+                            color: white;
+                        }
+
+                        .ctrl-btn:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+                        }
+
+                        .start-btn {
+                            background: linear-gradient(135deg, #2ecc71, #27ae60);
+                        }
+
+                        .show-btn {
+                            background: linear-gradient(135deg, #3498db, #2980b9);
+                        }
+
+                        /* Node Styles */
+                        .f-node {
+                            position: absolute;
+                            transform: translateX(-50%);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 2;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                            transition: all 0.3s;
+                            opacity: 1;
+                            font-weight: bold;
+                            border: 2px solid transparent;
+                        }
+
+                        .f-node.dimmed {
+                            opacity: 0.3;
+                            filter: grayscale(100%);
+                        }
+
+                        .f-node.highlight {
+                            opacity: 1;
+                            filter: none;
+                            box-shadow: 0 0 20px rgba(46, 204, 113, 0.8);
+                            transform: translateX(-50%) scale(1.05);
+                            border-color: #2ecc71;
+                        }
+
+                        .f-oval {
+                            width: 120px;
+                            height: 40px;
+                            border-radius: 20px;
+                            background: #1f77b4;
+                        }
+
+                        .f-rect {
+                            width: 160px;
+                            height: 45px;
+                            background: #1f77b4;
+                            border-radius: 2px;
+                        }
+
+                        .f-diamond {
+                            width: 80px;
+                            height: 80px;
+                            background: #f1c40f;
+                            transform: translateX(-50%) rotate(45deg);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: black;
+                        }
+
+                        .f-diamond span {
+                            transform: rotate(-45deg);
+                            font-size: 11px;
+                            width: 140%;
+                            text-align: center;
+                            line-height: 1.1;
+                        }
+
+                        /* Connection & Flow Styles */
+                        .f-conn {
+                            transition: all 0.5s;
+                            opacity: 1;
+                            stroke: #1f77b4;
+                        }
+
+                        .f-conn.dimmed {
+                            opacity: 0.2;
+                            stroke: #ccc;
+                        }
+
+                        /* Electric Flow Animation */
+                        .f-conn.flowing {
+                            stroke: #2ecc71;
+                            /* Green Current */
+                            stroke-width: 3;
+                            stroke-dasharray: 10 5;
+                            animation: flowAnim 1s linear infinite;
+                            opacity: 1;
+                            marker-end: url(#arrow-active);
+                        }
+
+                        @keyframes flowAnim {
+                            from {
+                                stroke-dashoffset: 30;
+                            }
+
+                            to {
+                                stroke-dashoffset: 0;
+                            }
+                        }
+
+                        .lbl {
+                            position: absolute;
+                            font-size: 11px;
+                            color: #333;
+                            font-weight: bold;
+                            background: white;
+                            padding: 2px 4px;
+                            border-radius: 3px;
+                            border: 1px solid #ccc;
+                        }
+
+                        /* Popups */
+                        .sim-pop {
+                            position: absolute;
+                            background: white;
+                            border: 2px solid #333;
+                            padding: 15px;
+                            border-radius: 8px;
+                            z-index: 30;
+                            display: none;
+                            color: #333;
+                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                            text-align: center;
+                            min-width: 160px;
+                            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        }
+
+                        @keyframes popIn {
+                            from {
+                                transform: scale(0.8);
+                                opacity: 0;
+                            }
+
+                            to {
+                                transform: scale(1);
+                                opacity: 1;
+                            }
+                        }
+
+                        .sim-btn {
+                            margin: 5px;
+                            padding: 8px 15px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            color: white;
+                            font-weight: bold;
+                            transition: transform 0.1s;
+                        }
+
+                        .sim-btn:hover {
+                            transform: scale(1.05);
+                        }
+                    </style>
+
+                    <!-- NODES LAYOUT -->
+
+                    <!-- 1. Start -->
+                    <div id="n-start" class="f-node f-oval" style="top: 20px; left: 50%;">Start</div>
+
+                    <!-- 2. Login -->
+                    <div id="n-login" class="f-node f-rect" style="top: 90px; left: 50%;">Login Page</div>
+
+                    <!-- 3. Valid? -->
+                    <div id="n-valid" class="f-node f-diamond" style="top: 170px; left: 50%;">
+                        <span>Valid Credentials?</span>
+                    </div>
+                    <div class="lbl" style="top: 190px; left: 600px;">No</div>
+                    <div class="lbl" style="top: 255px; left: 510px;">Yes</div>
+
+                    <!-- 4. Dashboard -->
+                    <div id="n-dash" class="f-node f-rect" style="top: 280px; left: 50%;">Dashboard</div>
+
+                    <!-- 5. Select Action -->
+                    <div id="n-action" class="f-node f-diamond" style="top: 360px; left: 50%;">
+                        <span>Select Action</span>
+                    </div>
+
+                    <!-- LEFT BRANCH -->
+                    <div id="n-dist" class="f-node f-rect" style="top: 377px; left: 18%; width: 140px;">Distribute Item
+                    </div>
+                    <div id="n-stud" class="f-node f-rect" style="top: 450px; left: 18%; width: 140px;">Enter Student
+                        Details</div>
+                    <div id="n-db1" class="f-node f-rect" style="top: 525px; left: 18%; width: 140px;">Update Database
+                    </div>
+
+                    <!-- RIGHT BRANCH -->
+                    <div id="n-add" class="f-node f-rect" style="top: 377px; left: 82%; width: 140px;">Add Stock</div>
+                    <div id="n-form" class="f-node f-rect" style="top: 450px; left: 82%; width: 140px;">Fill Inventory
+                        Form</div>
+                    <div id="n-db2" class="f-node f-rect" style="top: 525px; left: 82%; width: 140px;">Update Database
+                    </div>
+
+                    <!-- End -->
+                    <div id="n-end" class="f-node f-oval" style="top: 560px; left: 50%;">End</div>
+
+                    <!-- Popups -->
+                    <div id="sim-valid" class="sim-pop" style="top: 170px; left: 58%;">
+                        <p style="margin:0 0 10px 0; font-weight:bold;">Credentials Valid?</p>
+                        <button class="sim-btn" style="background:#2ecc71" onclick="simStep('valid_yes')">Yes
+                            (Proceed)</button>
+                        <button class="sim-btn" style="background:#e74c3c" onclick="simStep('valid_no')">No
+                            (Retry)</button>
+                    </div>
+
+                    <div id="sim-action" class="sim-pop" style="top: 360px; left: 58%;">
+                        <p style="margin:0 0 10px 0; font-weight:bold;">Select Operation:</p>
+                        <button class="sim-btn" style="background:#3498db"
+                            onclick="simStep('act_dist')">Distribute</button>
+                        <button class="sim-btn" style="background:#9b59b6" onclick="simStep('act_add')">Add
+                            Stock</button>
+                    </div>
+
+                </div>
+
+                <script>
+                    let isSimulating = false;
+
+                    function showFullDiagram() {
+                        isSimulating = false;
+                        resetVisuals();
+                        document.querySelectorAll('.f-node').forEach(el => el.style.opacity = '1');
+                        document.querySelectorAll('.f-conn').forEach(el => el.style.opacity = '1');
+                    }
+
+                    function resetVisuals() {
+                        document.querySelectorAll('.f-node').forEach(el => {
+                            el.classList.remove('dimmed', 'highlight');
+                        });
+                        document.querySelectorAll('.f-conn').forEach(el => {
+                            el.classList.remove('dimmed', 'flowing');
+                        });
+                        document.querySelectorAll('.sim-pop').forEach(el => el.style.display = 'none');
+                    }
+
+                    function startSimulation() {
+                        isSimulating = true;
+                        resetVisuals();
+
+                        // Dim everything
+                        document.querySelectorAll('.f-node').forEach(el => el.classList.add('dimmed'));
+                        document.querySelectorAll('.f-conn').forEach(el => el.classList.add('dimmed'));
+
+                        // Step 1: Start
+                        highlight('n-start');
+
+                        // Animate to Login
+                        setTimeout(() => {
+                            activateFlow('l-1');
+                            setTimeout(() => {
+                                activateFlow('l-1', false); // Stop flow
+                                highlight('n-login');
+
+                                // Animate to Valid
+                                setTimeout(() => {
+                                    activateFlow('l-2');
+                                    setTimeout(() => {
+                                        activateFlow('l-2', false);
+                                        highlight('n-valid');
+                                        document.getElementById('sim-valid').style.display = 'block';
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        }, 500);
+                    }
+
+                    function highlight(id) {
+                        if (!isSimulating) return;
+                        document.querySelectorAll('.f-node').forEach(el => el.classList.remove('highlight')); // only single highlight maybe? keep it simple
+                        const el = document.getElementById(id);
+                        el.classList.remove('dimmed');
+                        el.classList.add('highlight');
+                    }
+
+                    function activateFlow(lineId, isActive = true) {
+                        const l = document.getElementById(lineId);
+                        if (isActive) {
+                            l.classList.remove('dimmed');
+                            l.classList.add('flowing');
+                        } else {
+                            l.classList.remove('flowing');
+                            l.classList.add('dimmed'); // return to handled state
+                        }
+                    }
+
+                    window.simStep = function (action) {
+                        if (action === 'valid_no') {
+                            document.getElementById('sim-valid').style.display = 'none';
+                            // Flow loopback logic
+                            activateFlow('l-3'); // No path
+                            setTimeout(() => {
+                                activateFlow('l-3', false);
+                                highlight('n-login');
+                                // Loop again
+                                setTimeout(() => {
+                                    activateFlow('l-2');
+                                    setTimeout(() => {
+                                        activateFlow('l-2', false);
+                                        highlight('n-valid');
+                                        document.getElementById('sim-valid').style.display = 'block';
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        }
+                        if (action === 'valid_yes') {
+                            document.getElementById('sim-valid').style.display = 'none';
+                            activateFlow('l-4'); // Yes path
+                            setTimeout(() => {
+                                activateFlow('l-4', false);
+                                highlight('n-dash');
+                                setTimeout(() => {
+                                    activateFlow('l-5');
+                                    setTimeout(() => {
+                                        activateFlow('l-5', false);
+                                        highlight('n-action');
+                                        document.getElementById('sim-action').style.display = 'block';
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        }
+                        if (action === 'act_dist') {
+                            document.getElementById('sim-action').style.display = 'none';
+                            runBranch(['l-6', 'n-dist', 'l-8', 'n-stud', 'l-9', 'n-db1', 'l-12', 'n-end']);
+                        }
+                        if (action === 'act_add') {
+                            document.getElementById('sim-action').style.display = 'none';
+                            runBranch(['l-7', 'n-add', 'l-10', 'n-form', 'l-11', 'n-db2', 'l-13', 'n-end']);
+                        }
+                    };
+
+                    function runBranch(sequence) {
+                        // Sequence contains mix of lineIDs and nodeIDs
+                        let step = 0;
+                        function next() {
+                            if (step >= sequence.length) return;
+                            const id = sequence[step];
+                            const isLine = id.startsWith('l-');
+
+                            if (isLine) {
+                                activateFlow(id);
+                                setTimeout(() => {
+                                    activateFlow(id, false);
+                                    step++;
+                                    next();
+                                }, 1000);
+                            } else {
+                                highlight(id);
+                                step++;
+                                setTimeout(next, 500); // Shorter pause on nodes
+                            }
+                        }
+                        next();
+                    }
+                </script>
+            </section>
+
+            <!-- Slide 9: Tools Used -->
+            <section>
+                <h3>Tools & Environment</h3>
+                <div class="slide-content">
+                    <ul>
+                        <li><strong>VS Code:</strong> Primary Code Editor.</li>
+                        <li><strong>Postman:</strong> For testing API endpoints (Backend testing).</li>
+                        <li><strong>Git & GitHub:</strong> Version control and code repository.</li>
+                        <li><strong>Node Package Manager (NPM):</strong> Dependency management.</li>
+                        <li><strong>Browser DevTools:</strong> For debugging the Frontend UI.</li>
+                        <li><strong>Command Line / Terminal:</strong> For running the servers.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 10: Project Setup Steps -->
+            <section>
+                <h3>How to Run the Project</h3>
+                <div class="slide-content">
+                    <div style="font-size: 0.9em;">
+                        <p><strong>Step 1: Backend Setup</strong></p>
+                        <ol>
+                            <li>Open Terminal.</li>
+                            <li><code>cd server</code></li>
+                            <li><code>npm install</code></li>
+                            <li><code>node server.js</code> (Runs on Port 3000)</li>
+                        </ol>
+
+                        <p><strong>Step 2: Frontend Setup</strong></p>
+                        <ol>
+                            <li>Open New Terminal.</li>
+                            <li><code>cd client_v2</code></li>
+                            <li><code>npm install</code></li>
+                            <li><code>npm run dev</code> (Runs on Port 5173)</li>
+                        </ol>
+
+                        <p><strong>Step 3: Access</strong></p>
+                        <ul>
+                            <li>Open Browser to <a href="http://localhost:5173"
+                                    style="color: #a29bfe;">http://localhost:5173</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+
+
+
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'convex'
+        });
+    </script>
+</body>
+
+</html>

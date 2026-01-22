@@ -1,0 +1,348 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset="utf-8">
+    <title>Sunshine Inventory System - Technical Dissertation</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: #000; max-width: 100%; text-align: justify; }
+        
+        /* Layout */
+        .page-break { page-break-before: always; }
+        .chapter-title { text-align: center; font-size: 24pt; font-weight: bold; margin-top: 100px; margin-bottom: 50px; text-transform: uppercase; }
+        .section-title { font-size: 16pt; font-weight: bold; margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+        .subsection-title { font-size: 14pt; font-weight: bold; margin-top: 20px; font-style: italic; }
+        
+        /* Cover Page */
+        .cover-page { text-align: center; margin-top: 250px; }
+        .main-title { font-size: 48pt; font-weight: bold; letter-spacing: 2px; }
+        .sub-title { font-size: 24pt; margin-top: 20px; font-weight: normal; }
+        .meta-info { margin-top: 150px; font-size: 14pt; }
+        
+        /* Components */
+        p { margin-bottom: 15px; text-indent: 30px; }
+        .no-indent { text-indent: 0; }
+        ul, ol { margin-bottom: 20px; text-indent: 0; padding-left: 50px; }
+        li { margin-bottom: 10px; }
+        
+        table { border-collapse: collapse; width: 100%; margin: 30px 0; font-size: 11pt; }
+        th, td { border: 1px solid #000; padding: 10px; vertical-align: top; text-indent: 0; }
+        th { background-color: #eee; font-weight: bold; }
+        
+        .code-block { 
+            font-family: 'Courier New', monospace; 
+            font-size: 10pt; 
+            background: #f4f4f4; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            white-space: pre-wrap; 
+            text-indent: 0;
+            margin: 20px 0;
+        }
+        
+        img { display: block; margin: 30px auto; max-width: 100%; border: 1px solid #000; }
+        .caption { text-align: center; font-size: 10pt; font-style: italic; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="cover-page">
+    <div class="main-title">SUNSHINE INVENTORY</div>
+    <div class="sub-title">Technical Specification & Operational Manual</div>
+    <div class="meta-info">
+        <p><strong>Platform:</strong> Android (Capacitor) & React.js</p>
+        <p><strong>Database:</strong> SQLite Relational Engine</p>
+        <p><strong>Version:</strong> 2.0.0 (Enterprise Edition)</p>
+        <br><br>
+        <p><em>A Detailed Technical Dissertation</em></p>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGE 2: PREFACE -->
+<h1 class="chapter-title">Preface</h1>
+<p>This document serves as the comprehensive technical reference for the Sunshine Inventory Management System. It is designed to be exhaustive, covering every facet of the application's lifecycle, from its theoretical database design to practical deployment workflows on Android devices.</p>
+<p>The system was architected to solve a specific problem: the offline-first management of school inventory (Uniforms and Kits) with high data integrity and ease of use. Unlike simple spreadsheets, this application enforces referential integrity, provides transactional history, and ensures secure access control.</p>
+<p>This manual is intended for future developers, system administrators, and technical leads who wish to understand, maintain, or expand the Sunshine Inventory project. No detail has been omitted; from the explanation of specific CLI commands to the justification of individual database fields, this document provides the "Why" behind the "How".</p>
+
+<div class="page-break"></div>
+
+<!-- TOC -->
+<h1>Table of Contents</h1>
+<ol>
+    <li>Executive Summary</li>
+    <li>System Architecture & Technology Stack</li>
+    <li>Database Engineering & ER Model</li>
+    <li>Frontend Engineering (React.js)</li>
+    <li>Mobile Integration (Capacitor & Android)</li>
+    <li>Operational Workflows (User Manual)</li>
+    <li>Developer's Handbook (Setup & Maintenance)</li>
+    <li>Future Scalability & Security Protocol</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 1 -->
+<h1 class="chapter-title">Chapter 1: Executive Summary</h1>
+
+<h2 class="section-title">1.1 Project Overview</h2>
+<p class="no-indent">The Sunshine Inventory System is a bespoke mobile application developed to streamline the logistical operations of educational material distribution. Traditional methods of inventory tracking—such as physical ledger books or disconnected excel sheets—suffer from distinct disadvantages: lack of real-time visibility, error-prone manual entry, and the inability to track granular history per student. Sunshine Inventory addresses these by providing a digital, centralized, and validated record-keeping system directly on a mobile device.</p>
+
+<h2 class="section-title">1.2 Core Objectives</h2>
+<p>The primary objectives achieved by this software are:</p>
+<ol>
+    <li><strong>Data Integrity:</strong> Ensuring that inventory cannot be negative and that every item distributed is linked to a valid student and product.</li>
+    <li><strong>Granular Tracking:</strong> Moving beyond generic checks (e.g., "Shirt") to specific variant tracking (e.g., "Shirt - Size 12").</li>
+    <li><strong>Offline Capability:</strong> Recognizing that internet access may be intermittent in storage rooms, the app runs entirely locally using SQLite.</li>
+    <li><strong>User Efficiency:</strong> Reducing the time to distribute an item from minutes to seconds via autocomplete and optimized UI flows.</li>
+</ol>
+
+<h2 class="section-title">1.3 Operational Scope</h2>
+<p>The system is currently deployed for Android devices, utilizing a cross-platform architecture that allows for rapid feature iteration. It handles two primary categories of inventory: "Uniforms" (which have sizes) and "Kits" (which are standard units). It serves a single administrative role but is architected to support multi-role expansion.</p>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 2 -->
+<h1 class="chapter-title">Chapter 2: System Architecture</h1>
+
+<h2 class="section-title">2.1 The Technology Stack</h2>
+<p>The selection of technologies for Sunshine Inventory was driven by the need for performance, maintainability, and offline reliability. We employ a "Hybrid Native" approach.</p>
+
+<h3 class="subsection-title">2.1.1 Frontend Layer: React.js (v18)</h3>
+<p>React was chosen for the User Interface layer due to its component-based architecture. This allows us to build reusable UI elements (like the `SunLoader` or `InventoryCard`) that maintain their own state. We utilize **React Hooks** extensively to manage logic without class-based complexity.</p>
+<ul>
+    <li><strong>Virtual DOM:</strong> Ensures high performance even when rendering lists of hundreds of students.</li>
+    <li><strong>Vite:</strong> The build tool used. It provides millisecond-latency hot module replacement (HMR) during development and highly optimized logical bundling for production.</li>
+</ul>
+
+<h3 class="subsection-title">2.1.2 Native Bridge: Capacitor (v6)</h3>
+<p>Unlike traditional Native development (Java/Kotlin) which requires separate codebases for iOS and Android, Capacitor allows us to wrap our standardized Web Application in a native container. It provides a Javascript Bridge that allows our React code to talk to the device hardware.</p>
+<ul>
+    <li><strong>Plugins:</strong> We use specific plugins for Haptics (Vibration), Local Notifications, and SQLite Storage.</li>
+    <li><strong>Renderer:</strong> The app runs inside a `WebView`, which is essentially a chrome-less browser instance controlled by the Android OS.</li>
+</ul>
+
+<h3 class="subsection-title">2.1.3 Data Persistence: SQLite</h3>
+<p>This is the critical differentiator. Most web apps use `localStorage`, which is fragile and limited to ~5MB strings. Sunshine Inventory uses a full SQL engine running natively on the device.</p>
+<ul>
+    <li><strong>ACID Compliance:</strong> Guarantees that a transaction (Distribution) is either fully completed or fully rolled back, preventing data corruption.</li>
+    <li><strong>Filesystem Storage:</strong> The database is stored as a `.db` file in the app's private sandbox, secure from other apps.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 3 -->
+<h1 class="chapter-title">Chapter 3: Database Engineering</h1>
+
+<h2 class="section-title">3.1 Entity-Relationship Model (ERD)</h2>
+<p>The database follows <strong>Third Normal Form (3NF)</strong> to minimize redundancy. Below is the Entity-Relationship Diagram that governs the system.</p>
+
+<div class="img-container">
+    <img src="er_diagram.png" alt="Entity Relationship Diagram">
+    <div class="caption">Figure 3.1: The Schema Topology</div>
+</div>
+
+<h2 class="section-title">3.2 Deep Dive: The "Stock Bridge" Pattern</h2>
+<p>A common question in database design is why we separate <strong>Products</strong> and <strong>Stock</strong>. This design decision is crucial for Scalability.</p>
+<p><strong>The "Product" Entity</strong> represents the <em>Abstract Definition</em>. For example, a "T-Shirt". It defines properties that are effectively immutable and universal, such as the Category it belongs to (Uniform). It does not care about physical properties like Size or Location.</p>
+<p><strong>The "Stock" Entity</strong> represents the <em>Physical Instance</em>. A "T-Shirt" cannot be worn; a "Size 12 T-Shirt" can. Therefore, the Stock table acts as a child of Product. It adds the dimensions of <strong>Size</strong> and <strong>Quantity</strong>. </p>
+<p><strong>Transactional Integrity:</strong> When a `Transaction` occurs, we must link it to the <strong>Stock</strong> ID, not the Product ID. Linking to Product would lose the information about <em>which size</em> was taken. Linking to Stock preserves the exact historical fidelity.</p>
+
+<h2 class="section-title">3.3 Detailed Schema Analysis</h2>
+
+<h3 class="subsection-title">3.3.1 Table: USERS</h3>
+<div class="code-block">
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT,
+    role TEXT
+);
+</div>
+<p><strong>Field Justification:</strong></p>
+<ul>
+    <li><strong>password:</strong> Stored as a Hash. Using `bcryptjs`, we perform `salt + hash` operations. This creates a one-way cryptographic string. We never store raw passwords.</li>
+    <li><strong>role:</strong> This string (e.g., 'admin') functions as an Access Control List (ACL). The frontend checks this token before rendering protected routes (like the 'Add Inventory' page).</li>
+</ul>
+
+<h3 class="subsection-title">3.3.2 Table: TRANSACTIONS</h3>
+<div class="code-block">
+CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    stock_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    date TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(student_id) REFERENCES students(id),
+    FOREIGN KEY(stock_id) REFERENCES stock(id)
+);
+</div>
+<p><strong>Field Justification:</strong></p>
+<ul>
+    <li><strong>student_id:</strong> Foreign Key. By storing the ID, we allow the student's string-based name to be corrected in the parent table without breaking historical records.</li>
+    <li><strong>date:</strong> We use ISO-8601 Strings. SQLite does not have a native Date type, so text strings (YYYY-MM-DD HH:MM:SS) are the standard for chronological sorting.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 4 -->
+<h1 class="chapter-title">Chapter 4: Frontend Engineering</h1>
+
+<h2 class="section-title">4.1 React Application Structure</h2>
+<p>The codebase is organized following a "Feature-first" directory structure within `src/`.</p>
+
+<h3 class="subsection-title">4.1.1 The Context API (`DatabaseContext.jsx`)</h3>
+<p>To avoid "Prop Drilling" (passing database connections down through 10 layers of components), we utilize React Context. The `DatabaseProvider` wraps the entire application.</p>
+<p><strong>Lifecycle:</strong></p>
+<ol>
+    <li><strong>Mount:</strong> App starts. Context initializes and sets `isLoading = true`.</li>
+    <li><strong>Connection:</strong> Calls `sqlite.createConnection()`.</li>
+    <li><strong>Verification:</strong> Runs `initDB()` to verify table existence (Migrations).</li>
+    <li><strong>Ready:</strong> Sets `isLoading = false`, allowing the router to render screens.</li>
+</ol>
+
+<h3 class="subsection-title">4.1.2 Custom Components</h3>
+<p>We favor modularity. For example, the `Navbar.jsx` is not just HTML. It contains logic to:</p>
+<ul>
+    <li>Detect the active route (to highlight the current tab).</li>
+    <li>Adapt to screen size (Hiding text on mobile to save space).</li>
+    <li>Handle logout logic (Calling the context to clear user state).</li>
+</ul>
+
+<h2 class="section-title">4.2 CSS Architecture: Glassmorphism</h2>
+<p>The visual language is defined in `index.css` using modern CSS variables.</p>
+<div class="code-block">
+:root {
+  --bg-dark: #0f172a;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --neon-sun: #f59e0b;
+}
+</div>
+<p>By using `backdrop-filter: blur(12px)`, we create the premium "Glass" effect. This is computationally expensive but handled well by modern mobile GPUs. The color palette—Dark Slate Blue background with Neon Amber accents—was chosen to ensure high contrast in low-light environments (e.g., storage rooms) while reducing battery consumption on OLED screens.</p>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 5 -->
+<h1 class="chapter-title">Chapter 5: Operational Workflows</h1>
+
+<h2 class="section-title">5.1 The Distribution Workflow</h2>
+<p>This is the primary function of the app. The sequence diagram logic is as follows:</p>
+<ol>
+    <li><strong>Initialization:</strong> User opens the "Distribute" tab. React `useEffect` triggers a SQL query: `SELECT * FROM students` and `SELECT * FROM products JOIN stock`.</li>
+    <li><strong>Filtering:</strong> As the user types in the "Student Name" box, a Javascript filter reduces the 500-student list to matches in real-time.</li>
+    <li><strong>Selection:</strong> User selects "John Doe". The UI locks this selection.</li>
+    <li><strong>Validation:</strong> User selects "T-Shirt". The UI checks: <em>Is there stock?</em> If `qty <= 0`, the "Confirm" button is disabled via the `disabled={isOutOfStock}` attribute.</li>
+    <li><strong>Commit:</strong> User clicks "Distribute".
+        <ul>
+            <li>Action 1: Calculate new qty (`current - 1`).</li>
+            <li>Action 2: `UPDATE stock SET quantity = ?`.</li>
+            <li>Action 3: `INSERT INTO transactions ...`.</li>
+            <li>Action 4: Trigger Haptic Feedback (Vibration).</li>
+        </ul>
+    </li>
+    <li><strong>Notification:</strong> If the remaining stock drops below 15, the `NotificationService` fires a system-level alert to warn the admin.</li>
+</ol>
+
+<h2 class="section-title">5.2 The Restocking Workflow</h2>
+<p>Adding stock requires different logic because it handles specific "Creation" events.</p>
+<ol>
+    <li><strong>Check Existence:</strong> When user clicks "Add", we first query: `SELECT * FROM stock WHERE product_id = ? AND size = ?`.</li>
+    <li><strong>Branching Logic:</strong>
+        <ul>
+            <li><strong>Match Found:</strong> We run an `UPDATE` command adding the new input to the existing count.</li>
+            <li><strong>No Match:</strong> We run an `INSERT` command to create a new row in the Stock table.</li>
+        </ul>
+    </li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 6 -->
+<h1 class="chapter-title">Chapter 6: Developer's Handbook</h1>
+
+<h2 class="section-title">6.1 Environment Setup (The From-Scratch Guide)</h2>
+<p>This section details how to replicate the development environment on a fresh machine.</p>
+
+<h3 class="subsection-title">6.1.1 Prerequisites</h3>
+<ul>
+    <li><strong>Node.js:</strong> The runtime environment. Required for `npm`. Version 18+ recommended.</li>
+    <li><strong>Java JDK 17:</strong> Required for Android compilation.</li>
+    <li><strong>Android Studio (Ladybug or newer):</strong> The IDE for native deployment.</li>
+    <li><strong>VS Code:</strong> The IDE for React development.</li>
+</ul>
+
+<h3 class="subsection-title">6.1.2 Step-by-Step Initialization</h3>
+<ol>
+    <li><strong>Scaffolding:</strong> Use Vite to create the skeleton.
+        <br><code>npm create vite@latest sunshinemob -- --template react</code></li>
+    <li><strong>Dependency Injection:</strong> Install the core libraries.
+        <br><code>npm install react-router-dom lucide-react @capacitor/core @capacitor-community/sqlite</code></li>
+    <li><strong>Native Layer:</strong> Initialize Capacitor.
+        <br><code>npx cap init Sunshine com.example.sunshine</code></li>
+    <li><strong>Platform Add:</strong>
+        <br><code>npm install @capacitor/android</code>
+        <br><code>npx cap add android</code></li>
+</ol>
+
+<h2 class="section-title">6.2 The Deployment Cycle</h2>
+<p>Understanding the "Build-Sync-Run" Loop is critical for developers.</p>
+
+<div class="cmd-expl">
+    <h4>Phase 1: The Build (`npm run build`)</h4>
+    <p>React code (JSX) cannot run on Android directly. It must be "transpiled" into vanilla Javascript. The build command performs <strong>Tree Shaking</strong> (removing unused code) and **Minification** (shortening variable names) to create a highly optimized `dist/` folder. This is the "payload".</p>
+</div>
+
+<div class="cmd-expl">
+    <h4>Phase 2: The Sync (`npx cap sync`)</h4>
+    <p>Capacitor acts as the courier. It takes the `dist/` payload and physically copies the files into the Android project directory structure (`android/app/src/main/assets/public`). It also updates the native Java/Kotlin configuration files if you added new plugins.</p>
+</div>
+
+<div class="cmd-expl">
+    <h4>Phase 3: The Run (Android Studio)</h4>
+    <p>This is the compilation phase. Android Studio uses <strong>Gradle</strong> (a build automation tool) to compile the Java code (Capacitor wrapper) and bundle the web assets into an `.apk` file. This APK is then pushed via ADB (Android Debug Bridge) to the connected device.</p>
+</div>
+
+<h2 class="section-title">6.3 Manual Workflow Reference</h2>
+<p>If CLI automation fails, here is the manual fallback process.</p>
+<p><strong>To Open Android Project Manually:</strong></p>
+<ol>
+    <li>Launch Android Studio.</li>
+    <li>Select "Open File or Project".</li>
+    <li>Navigate to `ProjectRoot/android`. (Not the root! The folder named `android`).</li>
+    <li>Wait for Gradle Indexing (Bottom right progress bar).</li>
+    <li>Select Connected Device in Top Toolbar.</li>
+    <li>Press "Run".</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 7 -->
+<h1 class="chapter-title">Chapter 7: Security & Scalability</h1>
+
+<h2 class="section-title">7.1 Security Protocols</h2>
+<p>Sunshine Inventory treats data security as a first-class citizen, even for an offline app.</p>
+<ul>
+    <li><strong>At-Rest Encryption:</strong> While the current SQLite implementation allows unencrypted storage for performance (`no-encryption` mode), the architecture supports switching to SQLCipher. This would encrypt the `.db` file using a key derived from the user's password.</li>
+    <li><strong>Password Hashing:</strong> We use `bcrypt` with a work factor of 10. This makes Brute Force attacks computationally infeasible on mobile hardware.</li>
+    <li><strong>Sanitized Inputs:</strong> All SQL queries use <strong>Parameterized Statements</strong> (e.g., `WHERE id = ?`). This completely eliminates the risk of SQL Injection attacks, where a user could input malicious code into a text field to manipulate the database.</li>
+</ul>
+
+<h2 class="section-title">7.2 Future Roadmap</h2>
+<p>The system is designed to scale. Recommended future upgrades include:</p>
+<ul>
+    <li><strong>Cloud Sync:</strong> Implementing a remote PostgreSQL database. The app would sync local SQLite data to the cloud when internet is available, enabling multi-device support.</li>
+    <li><strong>Barcode Scanning:</strong> Since the device has a camera, integrating a barcode scanner plugin would remove the need for manual item selection.</li>
+    <li><strong>Role-Based Access Control (RBAC):</strong> Expanding the `role` field to specific permissions (e.g., "Viewer", "Editor", "SuperAdmin").</li>
+</ul>
+
+<br><br><br>
+<hr>
+<p style="text-align: center; font-style: italic;">
+    End of Technical Dissertation<br>
+    Sunshine Inventory System - Technical Documentation<br>
+    Generated by Project Architect
+</p>
+
+</body>
+</html>

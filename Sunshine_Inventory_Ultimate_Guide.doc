@@ -1,0 +1,431 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset="utf-8">
+    <title>Sunshine Inventory Ultimate Guide</title>
+    <style>
+        body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.6; color: #000; max-width: 100%; }
+        
+        /* Cover Page */
+        .title-page { text-align: center; margin-top: 200px; margin-bottom: 200px; }
+        .main-title { font-size: 36pt; color: #2E74B5; font-weight: bold; margin-bottom: 20px; }
+        .sub-title { font-size: 18pt; color: #555; margin-bottom: 50px; }
+        .author { font-size: 14pt; font-style: italic; }
+
+        /* Headers */
+        h1 { color: #1F4E79; font-size: 24pt; border-bottom: 3px solid #1F4E79; padding-bottom: 10px; margin-top: 0; page-break-before: always; }
+        h2 { color: #2E74B5; font-size: 18pt; margin-top: 30px; border-left: 5px solid #2E74B5; padding-left: 10px; background-color: #f0f8ff; padding-top: 5px; padding-bottom: 5px; }
+        h3 { color: #2E74B5; font-size: 14pt; margin-top: 25px; font-weight: bold; text-decoration: underline; }
+        h4 { color: #cc5500; font-size: 12pt; margin-top: 20px; font-weight: bold; }
+
+        /* Content Blocks */
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-bottom: 20px; }
+        li { margin-bottom: 8px; }
+        
+        /* Tables */
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; border: 2px solid #1F4E79; }
+        th { background-color: #1F4E79; color: white; padding: 12px; font-weight: bold; text-align: left; border: 1px solid #ddd; }
+        td { border: 1px solid #ddd; padding: 10px; vertical-align: top; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+
+        /* Code & Commands */
+        .code-block { 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            background: #2d2d2d; 
+            color: #ccc; 
+            padding: 15px; 
+            border-radius: 5px; 
+            white-space: pre-wrap; 
+            margin-bottom: 20px; 
+            border-left: 5px solid #E65100;
+        }
+        .cmd-expl { 
+            background-color: #fffde7; 
+            border: 1px solid #ffecb3; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+        }
+
+        /* Images */
+        .img-container { text-align: center; margin: 30px 0; border: 1px solid #ccc; padding: 10px; background: #fafafa; }
+        img { max-width: 90%; height: auto; }
+
+        /* Sections */
+        .page-break { page-break-before: always; }
+        .note { background-color: #e8f5e9; padding: 10px; border-left: 5px solid #4caf50; font-style: italic; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="title-page">
+    <div class="main-title">Sunshine Inventory System</div>
+    <div class="sub-title">Ultimate Developer's Master Manual</div>
+    <div class="author">Comprehensive Documentation: Code, Database, & Workflows</div>
+    <br><br><br>
+    <p><strong>Topic Covered:</strong></p>
+    React.js | Capacitor | Android Studio | SQLite Database
+</div>
+
+<!-- PAGE 2: TABLE OF CONTENTS -->
+<h1 class="page-break">Table of Contents</h1>
+<ol>
+    <li><strong>System Architecture Overview</strong>
+        <ul>
+            <li>Introduction to the Stack</li>
+            <li>Why these technologies?</li>
+        </ul>
+    </li>
+    <li><strong>Data Modeling & ER Diagram</strong>
+        <ul>
+            <li>Visual ER Diagram</li>
+            <li>Deep Dive: The "Stock" Relationship</li>
+            <li>Detailed Data Dictionary (All Tables)</li>
+        </ul>
+    </li>
+    <li><strong>Database Engineering</strong>
+        <ul>
+            <li>SQL Creation Queries</li>
+            <li>Field Logic & Frontend Integration</li>
+        </ul>
+    </li>
+    <li><strong>Development Environment Setup (From Scratch)</strong>
+        <ul>
+            <li>Setting up VS Code</li>
+            <li>Setting up Android Studio</li>
+        </ul>
+    </li>
+    <li><strong>Command Line Glossary</strong>
+        <ul>
+            <li>Understanding `npm`, `npx`, and Scripts</li>
+        </ul>
+    </li>
+    <li><strong>Manual Workflows (Click-by-Click)</strong>
+        <ul>
+            <li>How to Open Project Manually</li>
+            <li>The Cycle: Edit -> Build -> Sync -> Run</li>
+        </ul>
+    </li>
+</ol>
+
+<!-- PAGE 3: ER DIAGRAM -->
+<h1>1. Entity-Relationship (ER) Model</h1>
+<p>The foundation of any good software application is its database structure. We use a Relational Model to ensure data integrity.</p>
+
+<h2>1.1 Visual Diagram</h2>
+<div class="img-container">
+    <img src="er_diagram.png" alt="ER Diagram - Relationship Map">
+</div>
+
+<h2>1.2 The Logic: Why "Stock" Appears in the Center</h2>
+<p>You may notice that the <strong>Stock</strong> table seems to be the "busy" intersection of the diagram. It might even appear as if it is used "double times". This is intentional and represents a pattern called a <strong>Bridge Entity</strong>.</p>
+
+<h3>Concept 1: The "Definition" vs. The "Physical Item"</h3>
+<p>In the real world, "T-Shirt" is a concept (A <strong>Product</strong>). However, "T-Shirt, Size 12, stored in Cupboard B" is a physical reality (A <strong>Stock</strong> Item). </p>
+<ul>
+    <li>We cannot just have one table for Products because one Product has many sizes.</li>
+    <li>We connect <strong>Stock</strong> to <strong>Products</strong> so that all the different sizes (Stock IDs 1, 2, 3) know they belong to the same parent "T-Shirt" (Product ID 1).</li>
+</ul>
+
+<h3>Concept 2: The Linking of History</h3>
+<p>When you give an item to a student, you must record exactly what was given. If you only recorded "T-Shirt", you wouldn't know which size needs to be restocked.</p>
+<ul>
+    <li>Therefore, the <strong>Transactions</strong> table connects strictly to the <strong>Stock</strong> table, NOT the Product table.</li>
+    <li>This creates the "Double Link" visual: <strong>Product -> Stock -> Transaction</strong>. Stock is the bridge that tells the Transaction what the Product name is.</li>
+</ul>
+
+<!-- PAGE 4: DATA DICTIONARY 1 -->
+<h1>2. Detailed Data Dictionary</h1>
+<p>This section provides a deep technical analysis of every single column in the database. I explain <strong>WHY</strong> the field exists and <strong>HOW</strong> the frontend (React) uses it.</p>
+
+<h2>2.1 Table: USERS</h2>
+<p><strong>Purpose:</strong> Controls who can access the app. Essential for security.</p>
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Deep Explanation</th>
+    </tr>
+    <tr>
+        <td><strong>id</strong> (PK)</td>
+        <td>INTEGER</td>
+        <td><strong>Primary Key.</strong> This is the internal engine reference. Frontend usage: We rarely show this, but React uses it as a unique `key` in lists.</td>
+    </tr>
+    <tr>
+        <td><strong>username</strong></td>
+        <td>TEXT</td>
+        <td><strong>The Login ID.</strong> Must be unique. Frontend usage: Used in the WHERE clause when you click "Login". <code>SELECT * FROM users WHERE username = ?</code>.</td>
+    </tr>
+    <tr>
+        <td><strong>password</strong></td>
+        <td>TEXT</td>
+        <td><strong>The Security Vault.</strong> We NEVER store plain text passwords. We store a <strong>Bcrypt Hash</strong>. Frontend Usage: When user types "123", we run <code>bcrypt.compare('123', hash)</code>. If true, login success.</td>
+    </tr>
+    <tr>
+        <td><strong>role</strong></td>
+        <td>TEXT</td>
+        <td><strong>Permission Level.</strong> e.g., 'admin', 'viewer'. Frontend Usage: <code>{user.role === 'admin' && &lt;AddStockButton /&gt;}</code>. This hides buttons from non-admins.</td>
+    </tr>
+</table>
+
+<h2>2.2 Table: CATEGORIES</h2>
+<p><strong>Purpose:</strong> High-level grouping (Uniform vs. Kit).</p>
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Deep Explanation</th>
+    </tr>
+    <tr>
+        <td><strong>name</strong></td>
+        <td>TEXT</td>
+        <td>e.g., "Uniform". Frontend Usage: This populates the main Tabs on the Dashboard or Distribute page. If we add a third category later, the app automatically creates a third tab.</td>
+    </tr>
+</table>
+
+<!-- PAGE 5: DATA DICTIONARY 2 -->
+<h2>2.3 Table: PRODUCTS</h2>
+<p><strong>Purpose:</strong> The catalog of item names.</p>
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Deep Explanation</th>
+    </tr>
+    <tr>
+        <td><strong>category_id</strong></td>
+        <td>INT (FK)</td>
+        <td><strong>Relationship Link.</strong> Points to Categories. Frontend Usage: When you select "Kit" tab, we run <code>SELECT * FROM products WHERE category_id = 2</code>. This filters the list instantly.</td>
+    </tr>
+    <tr>
+        <td><strong>name</strong></td>
+        <td>TEXT</td>
+        <td><strong>The Label.</strong> e.g., "T-Shirt". Frontend Usage: Displayed in the "Item Type" dropdown.</td>
+    </tr>
+</table>
+
+<h2>2.4 Table: STOCK (The Core)</h2>
+<p><strong>Purpose:</strong> Inventory tracking.</p>
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Deep Explanation</th>
+    </tr>
+    <tr>
+        <td><strong>product_id</strong> (FK)</td>
+        <td>INT</td>
+        <td>Links to the name. Frontend Usage: Allows us to show "T-Shirt" on the card, even though this table only knows ID numbers.</td>
+    </tr>
+    <tr>
+        <td><strong>size</strong></td>
+        <td>TEXT</td>
+        <td><strong>The Variant.</strong> Stores "10", "12", "XL". Frontend Usage: If the Category is "Uniform", we verify this is not empty. If "Kit", we might hide this column in the UI as kits don't have sizes.</td>
+    </tr>
+    <tr>
+        <td><strong>quantity</strong></td>
+        <td>INT</td>
+        <td><strong>The Number.</strong> Frontend Usage: Used for math. <code>Current - 1</code>. ALSO used for styling: <code>style={{ color: qty <= 15 ? 'red' : 'black' }}</code>.</td>
+    </tr>
+</table>
+
+<!-- PAGE 6: DATABASE QUERIES -->
+<h1>3. Database Creation Queries</h1>
+<p>These are the exact commands the application runs when it launches for the very first time. You can see the relationships defined here via `FOREIGN KEY` constraints.</p>
+
+<div class="code-block">
+/* 1. ENABLE FOREIGN KEY SUPPORT */
+PRAGMA foreign_keys = ON;
+
+/* 2. CREATE USERS */
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE, /* No duplicates allowed */
+    password TEXT,
+    role TEXT
+);
+
+/* 3. CREATE STUDENTS */
+CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    class TEXT NOT NULL,
+    previous_school TEXT, /* Nullable, only for Kits */
+    UNIQUE(name, class) /* Prevent same student entering twice */
+);
+
+/* 4. CREATE CATEGORIES */
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+/* 5. CREATE PRODUCTS */
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    UNIQUE(category_id, name),
+    FOREIGN KEY(category_id) REFERENCES categories(id)
+);
+
+/* 6. CREATE STOCK */
+CREATE TABLE IF NOT EXISTS stock (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    size TEXT,
+    quantity INTEGER DEFAULT 0,
+    FOREIGN KEY(product_id) REFERENCES products(id)
+);
+
+/* 7. CREATE TRANSACTIONS */
+CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    stock_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    date TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(student_id) REFERENCES students(id),
+    FOREIGN KEY(stock_id) REFERENCES stock(id)
+);
+</div>
+
+<!-- PAGE 7: COMMANDS EXPLAINED -->
+<h1>4. The Command Line Glossary</h1>
+<p>Understanding the "Why" behind the black box.</p>
+
+<div class="cmd-expl">
+    <h3>Command: <code>npm install</code></h3>
+    <p><strong>The Analyst's View:</strong> Imagine you are building a LEGO castle. This command is ordering all the specific bricks you need from the factory. </p>
+    <p><strong>Technical View:</strong> It parses `package.json`, resolves dependency trees (versions of libraries), and downloads thousands of files into `node_modules`. Without this, your code has no tools to work with.</p>
+</div>
+
+<div class="cmd-expl">
+    <h3>Command: <code>npm run dev</code></h3>
+    <p><strong>The Analyst's View:</strong> Turning on the ignition of the car while it's in the garage. It runs, but it's not going anywhere (to the phone) yet.</p>
+    <p><strong>Technical View:</strong> Starts a Vite Local Server. It injects a WebSocket implementation into the browser. When you save a file in VS Code, the server sends a signal over the WebSocket to "Replace this module", updating the screen instantly (Hot Module Replacement).</p>
+</div>
+
+<div class="cmd-expl">
+    <h3>Command: <code>npm run build</code></h3>
+    <p><strong>The Analyst's View:</strong> Packing the suitcases. We take all our clothes (code), fold them tightly (minification), and put them in one bag (dist folder).</p>
+    <p><strong>Technical View:</strong> It runs the TypeScript compiler and Vite Bundler. It removes all spaces/comments (minification), converts modern JS to browser-compatible JS (transpilation), and outputs static HTML/CSS/JS files.</p>
+</div>
+
+<div class="cmd-expl">
+    <h3>Command: <code>npx cap sync</code></h3>
+    <p><strong>The Analyst's View:</strong> Putting the suitcase into the trunk of the car (Android).</p>
+    <p><strong>Technical View:</strong> Capacitor copies the contents of your `dist` folder into the `android/app/src/main/assets/public` directory. It also updates any native plugins (Camera, Database) specified in `package.json`.</p>
+</div>
+
+<!-- PAGE 8: MANUAL WORKFLOW - VS CODE -->
+<h1>5. Manual Workflow: VS Code</h1>
+<p>How to navigate the project without using shortcuts or magic.</p>
+
+<h3>5.1 Opening the Project</h3>
+<ol>
+    <li>Launch the <strong>Visual Studio Code</strong> application.</li>
+    <li>Look at the top menu bar (File, Edit, Selection...). Click <strong>File</strong>.</li>
+    <li>Click <strong>Open Folder...</strong>.</li>
+    <li>A windows explorer box pops up. Navigate to your project folder (e.g., `f:\mca\sunshinemob\client_v2`).</li>
+    <li>Click the button <strong>Select Folder</strong>.</li>
+    <li>The Standard View loads. On the <strong>Left Side</strong> is your File Explorer. Click `src` to see your code.</li>
+</ol>
+
+<h3>5.2 Running the Terminal Manually</h3>
+<ol>
+    <li>In VS Code, look at the top menu again. Click <strong>Terminal</strong>.</li>
+    <li>Click <strong>New Terminal</strong>.</li>
+    <li>A black panel appears at the bottom. This is where you type commands.</li>
+    <li>Click inside it and type <code>npm run dev</code>. Press Enter.</li>
+    <li>Wait for the text: `Local: http://localhost:5173`.</li>
+    <li>Hold the <strong>Ctrl Key</strong> and Click that link. Your browser opens the app.</li>
+</ol>
+
+<!-- PAGE 9: MANUAL WORKFLOW - ANDROID STUDIO -->
+<h1>6. Manual Workflow: Android Studio</h1>
+<p>How to open and run the mobile app "The Hard Way" (which is the reliable way).</p>
+
+<h3>6.1 Opening the App</h3>
+<div class="step-box">
+    <ol>
+        <li>Click Windows Start Button -> Type "Android Studio" -> Enter.</li>
+        <li>On the "Welcome to Android Studio" small window:
+            <ul>
+                <li>Look for the <strong>Open</strong> button (Folder Icon) in the top right or center list. Click it.</li>
+            </ul>
+        </li>
+        <li>A file selection window appears.
+            <ul>
+                <li>Navigate to: `f:\mca\sunshinemob`.</li>
+                <li>Double click `client_v2` to go inside.</li>
+                <li><strong>CRITICAL STEP:</strong> You will see a folder named `android` with a small green robot icon. Single-click to select THIS folder. <strong>Do not select the entire project folder.</strong> Only the `android` folder.</li>
+                <li>Click <strong>OK</strong>.</li>
+            </ul>
+        </li>
+        <li>The main blue window interface opens.</li>
+        <li><strong>WAIT.</strong> Look at the bottom-right corner. A small bar says "Gradle Sync in progress". <strong>Do not touch anything until this finishes.</strong> It can take 2-5 minutes.</li>
+    </ol>
+</div>
+
+<h3>6.2 Running on Device</h3>
+<div class="step-box">
+    <ol>
+        <li>Take your USB cable. Plug your Android phone into the PC.</li>
+        <li>On your phone, if a popup says "Allow USB Debugging?", click <strong>Allow</strong>.</li>
+        <li>Look at the Top Toolbar of Android Studio.</li>
+        <li>There is a dropdown menu that might say "Simluator" or "Pixel". Click it.</li>
+        <li>You should see your phone name (e.g., "Samsung SM-G990"). Select it.</li>
+        <li>To the right of that dropdown is a <strong>Green Triangle (Play Button)</strong>. Click it.</li>
+        <li>The app will compile, install, and auto-open on your phone screen.</li>
+    </ol>
+</div>
+
+<!-- PAGE 10: FROM SCRATCH GUIDE -->
+<h1>7. Creating a Project From Scratch</h1>
+
+<p>If you want to build "Project 2" using this manual, follow these exact steps.</p>
+
+<h3>Step 1: Create the Folder</h3>
+<ol>
+    <li>Go to your Desktop (or F: drive). Right-click -> New Folder -> Name it `Project2`.</li>
+</ol>
+
+<h3>Step 2: Open in VS Code</h3>
+<ol>
+    <li>Open VS Code. File -> Open Folder -> Select `Project2`.</li>
+    <li>Terminal -> New Terminal.</li>
+</ol>
+
+<h3>Step 3: Initialize React</h3>
+<ol>
+    <li>Type: <code>npm create vite@latest . -- --template react</code>
+        <br><em>(The dot means "here".)</em></li>
+    <li>VS Code will create `src`, `public`, `package.json` files automatically.</li>
+    <li>Type: <code>npm install</code> (Downloads the brain).</li>
+</ol>
+
+<h3>Step 4: Add Mobile Power (Capacitor)</h3>
+<ol>
+    <li>In Terminal: <code>npm install @capacitor/core @capacitor/cli @capacitor/android</code></li>
+    <li>Initialize: <code>npx cap init</code> (Press Enter 3 times).</li>
+    <li>Create Android Project: <code>npx cap add android</code> (Creates the `android` folder).</li>
+</ol>
+
+<h3>Step 5: Code & Launch</h3>
+<ol>
+    <li>Write your code in `src/App.jsx`.</li>
+    <li>Build it: <code>npm run build</code>.</li>
+    <li>Sync it: <code>npx cap sync</code>.</li>
+    <li>Open Android Studio (File -> Open -> `Project2/android`).</li>
+    <li>Run on Phone.</li>
+</ol>
+
+<br><br>
+<div style="text-align: center; font-size: 10pt; color: #888;">
+    --- End of Documentation ---
+</div>
+
+</body>
+</html>

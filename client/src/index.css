@@ -1,0 +1,497 @@
+:root {
+  /* =========================================
+     DEFAULT THEME: LIGHT MODE (Modern Clean)
+     ========================================= */
+
+  /* Primary Brand Colors */
+  --primary: #4f46e5;
+  /* Indigo 600 */
+  --primary-dark: #4338ca;
+  /* Indigo 700 */
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --secondary: #ec4899;
+  /* Pink 500 */
+  --accent: #06b6d4;
+  /* Cyan 500 */
+
+  /* Backgrounds */
+  --bg-body: #f8fafc;
+  /* Slate 50 - Very Light Gray */
+  --bg-card: #ffffff;
+  /* Pure White */
+  --bg-input: #f1f5f9;
+  /* Slate 100 */
+  --bg-hover: #f1f5f9;
+
+  /* Typography */
+  --text-primary: #0f172a;
+  /* Slate 900 - Deep Black */
+  --text-secondary: #64748b;
+  /* Slate 500 */
+  --text-inverse: #ffffff;
+
+  /* Borders & Effects */
+  --border: #e2e8f0;
+  /* Slate 200 */
+  --glass-border: 1px solid rgba(0, 0, 0, 0.05);
+
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+
+  --radius: 16px;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Safe Area */
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* =========================================
+   DARK MODE OVERRIDE (Midnight Glass)
+   ========================================= */
+/* =========================================
+   DARK MODE OVERRIDE (Midnight Glass)
+   ========================================= */
+html[data-theme='dark'] {
+  --primary: #818cf8;
+  /* Indigo 400 (Lighter for Dark Mode) */
+  --primary-dark: #6366f1;
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+  --bg-body: #0f172a;
+  /* Slate 900 */
+  --bg-card: rgba(30, 41, 59, 0.7);
+  /* Glassy Slate 800 */
+  --bg-input: rgba(15, 23, 42, 0.6);
+  --bg-hover: rgba(255, 255, 255, 0.05);
+
+  --text-primary: #f8fafc;
+  /* Slate 50 */
+  --text-secondary: #94a3b8;
+  /* Slate 400 */
+
+  --border: rgba(148, 163, 184, 0.1);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-body);
+  /* Gentle Gradient Overlay for both themes */
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.08) 0%, transparent 25%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.6;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Typography Scale (Increased per user request) */
+h1 {
+  font-size: 2.25rem;
+  /* ~36px */
+  margin: 0 0 0.5rem 0;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+h2 {
+  font-size: 1.75rem;
+  /* ~28px */
+  margin: 0;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.35rem;
+  /* ~22px */
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  padding-left: calc(1.5rem + env(safe-area-inset-left));
+  padding-right: calc(1.5rem + env(safe-area-inset-right));
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Cards */
+.card,
+.dashboard-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--glass-border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  /* Increased padding */
+  box-shadow: var(--shadow);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: scaleIn 0.3s ease-out backwards;
+}
+
+.dashboard-card:active,
+.card:active {
+  transform: scale(0.98);
+}
+
+/* Forms (Larger Inputs) */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  /* Increased from 0.875rem */
+  font-weight: 600;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  /* Larger padding */
+  min-height: 56px;
+  /* Taller inputs */
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  /* Larger typing font */
+  transition: all 0.2s ease;
+  appearance: none;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* Buttons (Larger) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 1.1rem;
+  /* Larger button text */
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Navbar */
+.navbar {
+  background: var(--bg-card);
+  border-bottom: var(--glass-border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: background-color 0.3s;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.05rem;
+  /* Larger nav text */
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.nav-link.active::after {
+  content: none;
+  /* Remove underline for pill style */
+}
+
+/* Mobile Controls */
+.btn-icon {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  /* Ensure controls are visible on mobile */
+  .mobile-controls {
+    display: flex;
+  }
+
+  .navbar-container {
+    min-height: 48px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+    /* 2 columns mobile */
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* =========================================
+   MOBILE BOTTOM NAVIGATION (Premium Floating Pill)
+   ========================================= */
+/* =========================================
+   MOBILE BOTTOM NAVIGATION (Curved Hump)
+   ========================================= */
+.bottom-nav-container {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .bottom-nav-container {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    /* Adjust based on SVG height */
+    z-index: 1000;
+    filter: drop-shadow(0 -4px 10px rgba(0, 0, 0, 0.1));
+  }
+
+  .bottom-nav-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+
+  .bottom-nav-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    /* Align items to bottom initially */
+    width: 100%;
+    height: 100%;
+    padding-bottom: 10px;
+    /* Space from bottom edge */
+    position: relative;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-secondary);
+    padding-bottom: 10px;
+    transition: color 0.3s;
+  }
+
+  .nav-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+    filter: grayscale(100%) opacity(0.6);
+  }
+
+  .bottom-nav-item.active .nav-icon-img {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.1);
+  }
+
+  .bottom-nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .bottom-nav-item.active .bottom-nav-label {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  /* Center Floating Item */
+  .nav-item-center {
+    margin-bottom: 35px;
+    /* Push it up into the hump */
+  }
+
+  .nav-item-center .icon-wrapper {
+    background: var(--primary-gradient);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    transition: transform 0.2s;
+  }
+
+  .nav-item-center .nav-icon-img {
+    filter: brightness(0) invert(1);
+    /* Make icon white */
+    width: 28px;
+    height: 28px;
+    margin-bottom: 0;
+  }
+
+  .nav-item-center:active .icon-wrapper {
+    transform: scale(0.95);
+  }
+
+  .nav-item-center .bottom-nav-label {
+    display: none;
+    /* Hide label for center button if desired, or keep it */
+  }
+
+  /* Adjust body padding */
+  body {
+    padding-bottom: 90px;
+  }
+}

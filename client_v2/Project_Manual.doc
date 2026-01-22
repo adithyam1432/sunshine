@@ -1,0 +1,263 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>Sunshine Inventory Project Manual</title>
+<style>
+    body { font-family: 'Calibri', 'Arial', sans-serif; line-height: 1.6; color: #333; }
+    h1 { color: #2E74B5; border-bottom: 2px solid #2E74B5; padding-bottom: 10px; font-size: 24pt; margin-top: 0; }
+    h2 { color: #1F4E79; margin-top: 30px; font-size: 18pt; border-left: 5px solid #1F4E79; padding-left: 10px; }
+    h3 { color: #2E74B5; margin-top: 25px; font-size: 14pt; }
+    h4 { color: #555; margin-top: 20px; font-size: 12pt; font-weight: bold; }
+    p { margin-bottom: 15px; }
+    ul, ol { margin-bottom: 20px; }
+    li { margin-bottom: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; border: 1px solid #ccc; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; vertical-align: top; }
+    th { background-color: #f2f2f2; font-weight: bold; color: #333; }
+    .code-block { 
+        font-family: 'Consolas', 'Courier New', monospace; 
+        background-color: #f5f5f5; 
+        border: 1px solid #ddd; 
+        padding: 15px; 
+        border-radius: 5px; 
+        white-space: pre-wrap; 
+        font-size: 10pt; 
+        color: #c7254e;
+    }
+    .step-box {
+        background-color: #e8f4f8;
+        border-left: 5px solid #2E74B5;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .img-container {
+        text-align: center;
+        margin: 20px 0;
+        border: 1px solid #ddd;
+        padding: 10px;
+        background: #fafafa;
+    }
+    img { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+
+<h1>Sunshine Inventory: Complete Developer Manual</h1>
+
+<p>This document provides a comprehensive guide to the architecture, database structure, and full setup process (from scratch) for the Sunshine Inventory mobile application.</p>
+
+<!-- SECTION 1 & 2: ER DIAGRAM -->
+<h2>1 & 2. Entity-Relationship (ER) Model</h2>
+
+<p>The ER Diagram visualizes how data entities (tables) relate to one another in the system.</p>
+
+<div class="img-container">
+    <img src="er_diagram.png" alt="ER Diagram Image">
+</div>
+
+<h3>Explanation of the Diagram (Key Relationships)</h3>
+<ul>
+    <li><strong>One-to-Many (Category -> Products):</strong> A single Category (e.g., "Uniform") acts as a parent to multiple Products (e.g., "T-Shirt", "Skirt"). It categorizes items logicially.</li>
+    <li><strong>One-to-Many (Product -> Stock):</strong> A Product is the detailed definition (name), but it can have multiple variants in Stock (specifically, different Sizes like S, M, L). Each size is a separate row in the Stock table linked to the same Product ID.</li>
+    <li><strong>Many-to-One (Transactions -> Student):</strong> A Transaction record links a specific Student to a specific Stock item. The arrow points from Transaction to Student because many transaction rows can point to the same Student ID (history of what they received).</li>
+</ul>
+
+<!-- SECTION 3: DATABASE QUERIES -->
+<h2>3. Database Table Creation Queries</h2>
+<p>Below are the exact SQL commands used by the application to create the database structure automatically upon initialization.</p>
+
+<div class="code-block">
+PRAGMA foreign_keys = ON;
+
+-- 1. USERS Table
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT,
+    role TEXT
+);
+
+-- 2. STUDENTS Table
+CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    class TEXT NOT NULL,
+    previous_school TEXT,
+    UNIQUE(name, class)
+);
+
+-- 3. CATEGORIES Table
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+-- 4. PRODUCTS Table
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    UNIQUE(category_id, name),
+    FOREIGN KEY(category_id) REFERENCES categories(id)
+);
+
+-- 5. STOCK Table
+CREATE TABLE IF NOT EXISTS stock (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    size TEXT,
+    quantity INTEGER DEFAULT 0,
+    FOREIGN KEY(product_id) REFERENCES products(id)
+);
+
+-- 6. TRANSACTIONS Table
+CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    stock_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    date TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(student_id) REFERENCES students(id),
+    FOREIGN KEY(stock_id) REFERENCES stock(id)
+);
+</div>
+
+<!-- SECTION 4: FIELD EXPLANATION -->
+<h2>4. Database Field Logic & Frontend Usage</h2>
+<p>Each field serves a specific purpose in the application logic. Here is the breakdown:</p>
+
+<table>
+    <tr><th>Table</th><th>Field</th><th>Frontend Purpose / Reason</th></tr>
+    <tr>
+        <td><strong>transactions</strong></td>
+        <td>student_id</td>
+        <td><strong>Identity Link:</strong> Instead of saving the name "John" repeatedly, we save ID "5". If John changes his name or class, we only update the Students table, and the history remains correct. The frontend uses this to list "John's History".</td>
+    </tr>
+    <tr>
+        <td><strong>transactions</strong></td>
+        <td>stock_id</td>
+        <td><strong>Specific Item Link:</strong> We save the ID of the exact stock item (e.g., "T-Shirt Size 12"). This allows us to know exactly which size was given, not just "T-Shirt".</td>
+    </tr>
+    <tr>
+        <td><strong>stock</strong></td>
+        <td>product_id</td>
+        <td><strong>Grouping:</strong> Allows the frontend to group all sizes under one name. In the dashboard, we can say "T-Shirt" has "50 total" by summing all stock rows with the same product_id.</td>
+    </tr>
+    <tr>
+        <td><strong>students</strong></td>
+        <td>previous_school</td>
+        <td><strong>Conditional Data:</strong> Only relevant for new admissions (Kit distribution). The frontend hides this input for "Uniform" distribution but saves it here for reporting.</td>
+    </tr>
+</table>
+
+<!-- SECTION 5: REACT SETUP GUIDE -->
+<h2>5. How to Start Project Using React (from Scratch)</h2>
+
+<p>This guide assumes you have <strong>Node.js</strong> installed on your computer. Follow these steps in your terminal or command prompt.</p>
+
+<div class="step-box">
+    <h3>Step 1: Create the Project Folder</h3>
+    <ol>
+        <li>Open your computer's terminal (Command Prompt or PowerShell).</li>
+        <li>Navigate to where you want the project: <br><code>cd D:\MyProjects</code></li>
+        <li>Run the create command (using Vite, a modern tool for React):<br>
+            <span class="code-block">npm create vite@latest my-inventory-app -- --template react</span>
+        </li>
+        <li>This creates a folder named <strong>my-inventory-app</strong>.</li>
+    </ol>
+
+    <h3>Step 2: Install Dependencies</h3>
+    <ol>
+        <li>Enter the project folder:<br><code>cd my-inventory-app</code></li>
+        <li>Install the standard libraries:<br><code>npm install</code></li>
+    </ol>
+    
+    <h3>Step 3: Run the Development Server</h3>
+    <ol>
+        <li>To see the app in your browser, run:<br><code>npm run dev</code></li>
+        <li>You will see a URL (like <em>http://localhost:5173</em>). Ctrl+Click it to open.</li>
+    </ol>
+
+    <h3>Step 4: Creating Files</h3>
+    <ol>
+        <li>Open the folder in VS Code (`code .`).</li>
+        <li>In the file explorer (left side), right-click `src` folder -> <strong>New File</strong>.</li>
+        <li>Name it `MyComponent.jsx`.</li>
+        <li>Start writing your React code!</li>
+    </ol>
+</div>
+
+<!-- SECTION 6: ANDROID STUDIO SETUP -->
+<h2>6. Mobile App Setup (Android Studio) - From Scratch</h2>
+<p>This is how you turn the web app into a mobile app using Capacitor.</p>
+
+<div class="step-box">
+    <h3>Stage 1: Add Capacitor to React Project</h3>
+    <ol>
+        <li>In your VS Code terminal (Stop the server with Ctrl+C first), run:
+            <br><code>npm install @capacitor/core @capacitor/cli @capacitor/android</code>
+        </li>
+        <li>Initialize Capacitor:
+            <br><code>npx cap init</code>
+            <br>(Press Enter to accept defaults, or type App Name "SunshineApp").
+        </li>
+        <li>Add Android Platform:
+            <br><code>npx cap add android</code>
+        </li>
+    </ol>
+
+    <h3>Stage 2: Build & Sync</h3>
+    <p>Every time you change React code, you must do this before opening Android Studio:</p>
+    <ol>
+        <li>Build the web assets: <br><code>npm run build</code></li>
+        <li>Copy assets to Android folder: <br><code>npx cap sync</code></li>
+    </ol>
+
+    <h3>Stage 3: Open in Android Studio (Step-by-Step)</h3>
+    <p>This is the part to do manually:</p>
+    <ol>
+        <li>Command Approach: Run <code>npx cap open android</code> in VS Code. It will auto-launch Android Studio.</li>
+        <li><strong>Manual Approach (If opening Android Studio directly):</strong>
+            <ul>
+                <li>Open <strong>Android Studio</strong> from your Start Menu.</li>
+                <li>On the Welcome Screen, look at the top right or center. Click <strong>Open</strong> (Folder Icon).</li>
+                <li>A file browser window opens. Navigate to your project folder: <code>D:\MyProjects\my-inventory-app</code>.</li>
+                <li><strong>Crucial Step:</strong> Inside that folder, select the folder named <strong>android</strong> (not the root web folder!).</li>
+                <li>Click <strong>OK</strong>.</li>
+            </ul>
+        </li>
+        <li><strong>Wait for Gradle:</strong> Look at the bottom right bar. It will say "Gradle Build Running". <strong>Wait</strong> until it finishes (it can take 5+ mins the first time).</li>
+    </ol>
+
+    <h3>Stage 4: Run the App on Device</h3>
+    <ol>
+        <li>Plug in your Android Phone via USB.</li>
+        <li>Ensure "USB Debugging" is ON in your phone Developer Settings.</li>
+        <li>In Android Studio (Top Toolbar), look for a dropdown showing "Pixel Emulator" or similar. Click it and select your <strong>Real Device</strong> (e.g., "Samsung SM-G990").</li>
+        <li>Click the green <strong>Play Button (Run)</strong> ▶️ next to the dropdown.</li>
+        <li>The app will install and open on your phone.</li>
+    </ol>
+</div>
+
+<!-- SECTION 7: VS CODE TERMINAL MANUAL -->
+<h2>7. Running Project in VS Code (Manual Process)</h2>
+
+<div class="step-box">
+    <ol>
+        <li><strong>Open VS Code:</strong> Launch Visual Studio Code application.</li>
+        <li><strong>Open Folder:</strong> Go to <code>File > Open Folder...</code>. Select your project directory (e.g., `sunshinemob/client_v2`).</li>
+        <li><strong>Open Terminal:</strong>
+            <ul>
+                <li>Look at the top menu bar. Click <strong>Terminal</strong>.</li>
+                <li>Select <strong>New Terminal</strong>.</li>
+                <li>Alternatively, press the shortcut <code>Ctrl + ~</code> (Tilde key, near Esc).</li>
+            </ul>
+        </li>
+        <li><strong>Run Commands:</strong> A panel opens at the bottom. Click inside it.</li>
+        <li>Type <code>npm run dev</code> and hit <strong>Enter</strong> to start the website mode.</li>
+        <li>To stop it, click in the terminal and press <code>Ctrl + C</code>.</li>
+    </ol>
+</div>
+
+</body>
+</html>

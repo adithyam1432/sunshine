@@ -1,0 +1,296 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset="utf-8">
+    <title>Sunshine Inventory Deep Dive Manual</title>
+    <style>
+        body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.6; color: #222; max-width: 100%; }
+        
+        /* Layout */
+        .page-break { page-break-before: always; }
+        
+        /* Headers */
+        h1 { color: #1565C0; font-size: 26pt; border-bottom: 4px solid #1565C0; padding-bottom: 15px; margin-top: 50px; }
+        h2 { color: #E65100; font-size: 20pt; margin-top: 40px; border-left: 8px solid #E65100; padding-left: 15px; background: #FFF3E0; padding-top: 8px; padding-bottom: 8px; }
+        h3 { color: #1565C0; font-size: 16pt; margin-top: 30px; font-weight: bold; text-decoration: underline; }
+        h4 { color: #424242; font-size: 13pt; margin-top: 25px; font-weight: bold; }
+
+        /* Text */
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-bottom: 20px; padding-left: 40px; }
+        li { margin-bottom: 10px; }
+        
+        /* Tables */
+        table { border-collapse: collapse; width: 100%; margin: 30px 0; font-size: 10pt; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
+        th { background-color: #1565C0; color: white; padding: 12px; text-align: left; border: 1px solid #0D47A1; }
+        td { border: 1px solid #ccc; padding: 10px; vertical-align: top; }
+        tr:nth-child(even) { background-color: #f5f5f5; }
+        
+        /* Code Explanations */
+        .code-box { 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            background: #263238; 
+            color: #eceff1; 
+            padding: 20px; 
+            border-radius: 8px; 
+            white-space: pre-wrap; 
+            margin: 20px 0; 
+            border-left: 10px solid #80CBC4;
+            font-size: 10pt;
+        }
+        .explanation-box {
+            background-color: #E3F2FD;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #BBDEFB;
+            margin-bottom: 30px;
+        }
+        .step-box {
+            background-color: #F9FBE7;
+            border: 1px solid #CDDC39;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        /* Diagrams */
+        .img-container { text-align: center; margin: 40px 0; border: 1px solid #ddd; padding: 15px; background: #fff; }
+        img { max-width: 95%; height: auto; }
+    </style>
+</head>
+<body>
+
+<!-- TITLE PAGE -->
+<div style="text-align: center; margin-top: 150px; margin-bottom: 150px;">
+    <h1 style="border: none; font-size: 40pt; color: #222;">SUNSHINE INVENTORY</h1>
+    <h2 style="border: none; background: none; color: #1565C0; font-size: 24pt;">The Deep Dive Manual</h2>
+    <p><strong>Code Logic • Database internals • Manual Workflows</strong></p>
+    <br><br>
+    <p style="font-size: 14pt; color: #666;">Practical, detailed explanation of every component in the system.</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- TABLE OF CONTENTS -->
+<h1>Table of Contents</h1>
+<ol>
+    <li><strong>Project Anatomy:</strong> What is inside every folder?</li>
+    <li><strong>Database Reality:</strong> Viewing the Data Row-by-Row</li>
+    <li><strong>Code Deep Dive:</strong>
+        <ul>
+            <li>Understanding `db.js` (The Brain)</li>
+            <li>Understanding `Distribute.jsx` (The Distribution Logic)</li>
+        </ul>
+    </li>
+    <li><strong>The "Magic" Commands Explained</strong></li>
+    <li><strong>Step-by-Step Manuals:</strong>
+        <ul>
+            <li>Running in VS Code</li>
+            <li>Running in Android Studio</li>
+            <li>Updating the App Manually</li>
+        </ul>
+    </li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 1: FOLDER STRUCTURE -->
+<h1>1. Project Anatomy: The Folder Structure</h1>
+<p>Before we look at code, let's understand the "House" where the code lives. Here is your project folder explained file-by-file.</p>
+
+<div class="explanation-box">
+    <h3>📂 sunshinemob / client_v2</h3>
+    <p>This is the root folder of your application.</p>
+    
+    <ul>
+        <li><strong>📁 android/</strong>
+            <br>This folder contains the Native Android code (Java/Kotlin/Gradle).
+            <br><em>Why do we need it?</em> Android Studio opens THIS folder to build the APK. It is the "Native Shell" that holds your web app.</li>
+            
+        <li><strong>📁 node_modules/</strong>
+            <br>This is huge (hundreds of MB). It contains the 3rd party libraries (React, Capacitor, SQLite driver) downloaded from the internet.
+            <br><em>Note:</em> Never edit files in here. `npm install` manages this.</li>
+
+        <li><strong>📁 public/</strong>
+            <br>Contains static assets like `favicon.ico` or images that don't need processing.
+            <br><em>In the final app:</em> These are copied directly to the phone.</li>
+
+        <li><strong>📁 src/</strong> (The Source)
+            <br>This is where 99% of your work happens. It contains your React components, CSS, and Logic.</li>
+
+        <li><strong>📄 index.html</strong>
+            <br>The entry point. It is a tiny HTML file that basically says "Load the React App Here".</li>
+
+        <li><strong>📄 package.json</strong>
+            <br>The "Identity Card" of the project. It lists the name ("Sunshine"), version ("1.0"), and dependencies ("react", "sqlite").
+            <br><em>Command:</em> `npm install` reads this file.</li>
+
+        <li><strong>📄 vite.config.js</strong>
+            <br>The setting file for the "Vite" build tool. It tells the computer how to bundle your code.</li>
+    </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 2: DATABASE REALITY -->
+<h1>2. Database Reality: Seeing the Data</h1>
+<p>ER Diagrams are abstract. Let's look at what the <strong>ACTUAL DATA</strong> inside the database looks like on the phone. This helps you understand how the app "thinks".</p>
+
+<h2>2.1 The Products Table Data</h2>
+<p><em>Notice: We don't store sizes here! Just names.</em></p>
+<table>
+    <tr><th>ID</th><th>Category_ID</th><th>Name</th></tr>
+    <tr><td>1</td><td>1 (Uniform)</td><td>T-Shirt</td></tr>
+    <tr><td>2</td><td>1 (Uniform)</td><td>Skirt</td></tr>
+    <tr><td>3</td><td>2 (Kit)</td><td>Math Kit</td></tr>
+</table>
+
+<h2>2.2 The Stock Table Data (The Bridge)</h2>
+<p><em>This is where sizes live. Notice how Product #1 (T-Shirt) appears multiple times!</em></p>
+<table>
+    <tr><th>ID</th><th>Product_ID</th><th>Size</th><th>Quantity</th></tr>
+    <tr><td>101</td><td>1 (Link to T-Shirt)</td><td><strong>12</strong></td><td>50</td></tr>
+    <tr><td>102</td><td>1 (Link to T-Shirt)</td><td><strong>14</strong></td><td>35</td></tr>
+    <tr><td>103</td><td>2 (Link to Skirt)</td><td><strong>L</strong></td><td>20</td></tr>
+    <tr><td>104</td><td>3 (Link to Math Kit)</td><td><em>NULL</em></td><td>100</td></tr>
+</table>
+<div class="explanation-box">
+    <strong>Technical Note:</strong> When you select "T-Shirt" in the app, the code effectively says:
+    <br><code>SELECT * FROM stock WHERE product_id = 1</code>
+    <br>This returns rows 101 and 102. That is how the "Size" dropdown knows to show "12" and "14".
+</div>
+
+<h2>2.3 The Transactions Table Data</h2>
+<p><em>The History Log. Notice it uses IDs, not names.</em></p>
+<table>
+    <tr><th>ID</th><th>Student_ID</th><th>Stock_ID</th><th>Qty</th><th>Date</th></tr>
+    <tr><td>9001</td><td>55</td><td><strong>101</strong></td><td>1</td><td>2026-01-18 10:00:00</td></tr>
+</table>
+<div class="explanation-box">
+    <strong>Reading the Story:</strong>
+    <br>Row 9001 tells us that Student #55 received 1 unit of Stock #101.
+    <br>We look up Stock #101 -> It is "T-Shirt Size 12".
+    <br><strong>Conclusion:</strong> Student #55 took a Size 12 T-Shirt.
+</div>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 3: CODE DEEP DIVE -->
+<h1>3. Code Deep Dive</h1>
+<p>Let's open the code files and explain exactly what specific lines do.</p>
+
+<h2>3.1 File: `src/services/db.js`</h2>
+<p>This file is the specific "Driver" that commands the database.</p>
+
+<div class="code-box">
+export const initDB = async () => {
+    // LINE A: Check connection
+    const ret = await sqlite.checkConnectionsConsistency(); 
+    const isConn = (await sqlite.isConnection('inventory_db', false)).result;
+
+    // LINE B: Create or Retrieve
+    if (ret.result && isConn) {
+        dbConnection = await sqlite.retrieveConnection('inventory_db', false);
+    } else {
+        dbConnection = await sqlite.createConnection('inventory_db', false, 'no-encryption', 1, false);
+    }
+    
+    // LINE C: Run Schema
+    await dbConnection.execute(schema);
+};
+</div>
+
+<div class="explanation-box">
+    <h4>Explanation of Code:</h4>
+    <ul>
+        <li><strong>Line A:</strong> We ask the Capacitor Plugin: "Do we already have an open link to the database?" This prevents the app from crashing by trying to open a door that is already open.</li>
+        <li><strong>Line B:</strong> If yes, grab the existing link. If no, Create a new connection to `inventory_db`. 
+        <br><em>Note:</em> This is where you would change 'no-encryption' to 'secret' if you wanted security.</li>
+        <li><strong>Line C:</strong> This executes the HUGE block of `CREATE TABLE` text we wrote earlier. It ensures tables exist.</li>
+    </ul>
+</div>
+
+<h2>3.2 File: `src/pages/Distribute.jsx`</h2>
+<p>The logic for giving items to students.</p>
+
+<div class="code-box">
+// The Filter Logic
+const filteredStudents = useMemo(() => {
+    if (!studentName) return [];
+    return students.filter(s => 
+        s.name.toLowerCase().includes(studentName.toLowerCase())
+    );
+}, [studentName, students]);
+</div>
+
+<div class="explanation-box">
+    <h4>Why do use useMemo? (Performance)</h4>
+    <p>Imagine you have 5,000 students. If you filter that list every single time the screen flickers (renders), the app will be slow.</p>
+    <p><strong>useMemo</strong> tells React: "Only re-calculate this list if `studentName` changes or the main `students` list changes." If you just touch a button that doesn't affect these, React uses the old calculated list instantly.</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- CHAPTER 4: MANUALS -->
+<h1>4. Detailed Manuals: "How To..."</h1>
+
+<h2>4.1 How to Run in VS Code (Web Mode)</h2>
+<p><em>Use this for quick design changes. It is faster than Android Studio.</em></p>
+<div class="step-box">
+    <ol>
+        <li><strong>Open VS Code.</strong></li>
+        <li><strong>Open File > Open Folder.</strong> Select `.../client_v2`.</li>
+        <li><strong>Open Terminal.</strong> (Ctrl + ~).</li>
+        <li><strong>Type:</strong> <code>npm run dev</code></li>
+        <li><strong>Results:</strong>
+            <br>You will see green text: `➜  Local:   http://localhost:5173/`
+            <br>Hold <strong>Ctrl</strong> and click that link. Chrome will open.
+        </li>
+        <li><strong>Stop:</strong> Click in terminal and press <strong>Ctrl + C</strong>.</li>
+    </ol>
+</div>
+
+<h2>4.2 How to Update the Android App (The Cycle)</h2>
+<p><em>You changed code. Now you want it on the phone. Follow this EXACTLY.</em></p>
+
+<div class="step-box">
+    <h3>Step 1: The Build (VS Code)</h3>
+    <ol>
+        <li>Stop the web server (Ctrl + C) if running.</li>
+        <li>Type: <code>npm run build</code></li>
+        <li>Wait for "dist/ index.html ... undefined kB" message.</li>
+        <li><em>What happened?</em> VS Code just created a fresh packet of your app in the hidden `dist` folder.</li>
+    </ol>
+
+    <h3>Step 2: The Sync (VS Code)</h3>
+    <ol>
+        <li>Type: <code>npx cap sync</code></li>
+        <li>Wait for "Sync finished".</li>
+        <li><em>What happened?</em> Capacitor took that `dist` packet and copied it deeply into the `android/` folders.</li>
+    </ol>
+
+    <h3>Step 3: The Run (Android Studio)</h3>
+    <ol>
+        <li>Open Android Studio.</li>
+        <li><strong>Wait for the Indexing bar</strong> at the bottom right to disappear. This is critical. If you click run too early, it fails.</li>
+        <li><strong>Plug in Phone.</strong> Ensure "USB Debugging" is on.</li>
+        <li>Look at top bar. Select your Phone.</li>
+        <li>Click <strong>Green Play Button</strong>.</li>
+    </ol>
+</div>
+
+<h2>4.3 Troubleshooting Common Errors</h2>
+
+<div class="explanation-box">
+    <h4>Error: "Web View Error" / White Screen on Phone</h4>
+    <p><strong>Cause:</strong> You likely skipped Step 2 (Sync). The Android app is looking for files that don't match its logic.</p>
+    <p><strong>Fix:</strong> Run `npm run build` AND `npx cap sync` again.</p>
+</div>
+
+<div class="explanation-box">
+    <h4>Error: "Gradle Sync Failed"</h4>
+    <p><strong>Cause:</strong> Usually internet issues (Gradle needs to download tools) or Java version mismatch.</p>
+    <p><strong>Fix:</strong> In Android Studio, go to <strong>File > Sync Project with Gradle Files</strong>. Make sure you are online.</p>
+</div>
+
+</body>
+</html>

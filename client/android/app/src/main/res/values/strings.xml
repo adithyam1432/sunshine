@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sunshine Inventory</string>
+    <string name="title_activity_main">Sunshine Inventory</string>
+    <string name="package_name">com.sunshine.inventory</string>
+    <string name="custom_url_scheme">com.sunshine.inventory</string>
+</resources>
