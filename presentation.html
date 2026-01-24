@@ -249,16 +249,38 @@
         }
 
         .sc-item img {
-            width: 100%;
-            height: auto;
-            max-height: 70vh;
-            object-fit: contain;
-            border-radius: 8px;
+            height: 60vh;
+            /* Fixed height for uniformity */
+            width: auto;
+            /* Auto width to maintain aspect ratio */
+            max-width: 100%;
+            aspect-ratio: 9/20;
+            /* Prohibit weird stretching */
+            object-fit: fill;
+            /* Fill the box as requested for uniformity */
+            border-radius: 12px;
             display: block;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
             /* Rainbow Shadow Animation */
-            animation: rainbowShadow 3s infinite linear;
+            animation: rainbowShadow 4s infinite linear;
+            background: #000;
+        }
+
+        /* Staggered Animation Delays for "One by One" Effect */
+        .sc-item:nth-child(1) img {
+            animation-delay: 0s;
+        }
+
+        .sc-item:nth-child(2) img {
+            animation-delay: 1s;
+        }
+
+        .sc-item:nth-child(3) img {
+            animation-delay: 2s;
+        }
+
+        .sc-item:nth-child(4) img {
+            animation-delay: 3s;
         }
 
         @keyframes rainbowShadow {
@@ -536,19 +558,49 @@
                 <div class="sc-grid">
                     <div class="sc-item">
                         <img src="distribute_tab_new.png" alt="Distribution">
-                        <h4>Distribution Tab</h4>
+                        <h5>Distribute Tab</h5>
                     </div>
                     <div class="sc-item">
                         <img src="add_stock_tab_new.png" alt="Add Stock">
-                        <h4>Add Stocks Tab</h4>
+                        <h5>Add Stocks</h5>
                     </div>
                     <div class="sc-item">
                         <img src="history_tab_new.png" alt="History">
-                        <h4>History Tab</h4>
+                        <h5>History Tab</h5>
                     </div>
                     <div class="sc-item">
                         <img src="login_page_new.png" alt="Login">
-                        <h4>Login Page</h4>
+                        <h5>Login Page</h5>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Technologies Used -->
+            <section>
+                <h3>Technologies Used</h3>
+                <div style="display: flex; justify-content: space-around; text-align: left; margin-top: 30px;">
+                    <!-- Frontend -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
+                        <h4
+                            style="color: #61dafb; font-size: 1.2em; border-bottom: 2px solid #61dafb; padding-bottom: 10px; margin-bottom: 20px;">
+                            Frontend (Client Side)</h4>
+                        <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 10px;"><strong>Language:</strong> JavaScript (React JSX)</li>
+                            <li style="margin-bottom: 10px;"><strong>Framework:</strong> React.js</li>
+                            <li><strong>Styling:</strong> Vanilla CSS (CSS3)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Backend -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
+                        <h4
+                            style="color: #68bd45; font-size: 1.2em; border-bottom: 2px solid #68bd45; padding-bottom: 10px; margin-bottom: 20px;">
+                            Backend (Server Side)</h4>
+                        <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 10px;"><strong>Language:</strong> JavaScript</li>
+                            <li style="margin-bottom: 10px;"><strong>Framework:</strong> Express.js</li>
+                            <li><strong>Database Engine:</strong> SQLite (Relational Database)</li>
+                        </ul>
                     </div>
                 </div>
             </section>
