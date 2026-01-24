@@ -22,12 +22,13 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 120px;
+            width: 220px;
+            /* Made larger as requested */
             z-index: 1000;
             background: white;
-            /* Optional: in case logo has transparency */
             border-radius: 4px;
             padding: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         /* Slide Content Alignment */
@@ -250,12 +251,46 @@
         .sc-item img {
             width: 100%;
             height: auto;
-            max-height: 550px;
+            max-height: 70vh;
             object-fit: contain;
             border-radius: 8px;
             display: block;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
+            /* Rainbow Shadow Animation */
+            animation: rainbowShadow 3s infinite linear;
+        }
+
+        @keyframes rainbowShadow {
+            0% {
+                box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
+                border: 2px solid rgba(255, 0, 0, 0.5);
+            }
+
+            20% {
+                box-shadow: 0 0 25px rgba(255, 255, 0, 0.9);
+                border: 2px solid rgba(255, 255, 0, 0.5);
+            }
+
+            40% {
+                box-shadow: 0 0 25px rgba(0, 255, 0, 0.9);
+                border: 2px solid rgba(0, 255, 0, 0.5);
+            }
+
+            60% {
+                box-shadow: 0 0 25px rgba(0, 255, 255, 0.9);
+                border: 2px solid rgba(0, 255, 255, 0.5);
+            }
+
+            80% {
+                box-shadow: 0 0 25px rgba(0, 0, 255, 0.9);
+                border: 2px solid rgba(0, 0, 255, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 25px rgba(255, 0, 128, 0.9);
+                border: 2px solid rgba(255, 0, 128, 0.5);
+            }
         }
 
         .sc-item h4 {
@@ -504,15 +539,15 @@
                         <h4>Distribution Tab</h4>
                     </div>
                     <div class="sc-item">
-                        <img src="add_stock_tab.png" alt="Add Stock">
+                        <img src="add_stock_tab_new.png" alt="Add Stock">
                         <h4>Add Stocks Tab</h4>
                     </div>
                     <div class="sc-item">
-                        <img src="history_tab.png" alt="History">
+                        <img src="history_tab_new.png" alt="History">
                         <h4>History Tab</h4>
                     </div>
                     <div class="sc-item">
-                        <img src="login_page.png" alt="Login">
+                        <img src="login_page_new.png" alt="Login">
                         <h4>Login Page</h4>
                     </div>
                 </div>
