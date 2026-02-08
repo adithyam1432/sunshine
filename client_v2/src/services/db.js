@@ -73,17 +73,34 @@ export const initDB = async () => {
         }
 
         // Create Relational Tables (Normalized)
+
+        // Check for 'security_question' column in users table and migrate if missing
+        try {
+            const tableInfo = await dbConnection.query("PRAGMA table_info(users)");
+            const hasQuestion = tableInfo.values.some(col => col.name === 'security_question');
+            if (!hasQuestion) {
+                console.log("Migrating: Adding security_question to users");
+                await dbConnection.execute("ALTER TABLE users ADD COLUMN security_question TEXT");
+                await dbConnection.execute("ALTER TABLE users ADD COLUMN security_answer TEXT");
+            }
+        } catch (e) {
+            console.log("Migration check failed (users tables might not exist yet):", e);
+        }
+
+        // Create Relational Tables (Normalized)
         const schema = `
         PRAGMA foreign_keys = ON;
 
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
             password TEXT,
-            role TEXT
+            role TEXT,
+            security_question TEXT,
+            security_answer TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS students (
+        CREATE TABLE IF NOT EXISTS students(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             class TEXT NOT NULL,
@@ -91,12 +108,12 @@ export const initDB = async () => {
             UNIQUE(name, class)
         );
 
-        CREATE TABLE IF NOT EXISTS categories (
+        CREATE TABLE IF NOT EXISTS categories(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS products(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category_id INTEGER NOT NULL,
             name TEXT NOT NULL,
@@ -104,7 +121,7 @@ export const initDB = async () => {
             FOREIGN KEY(category_id) REFERENCES categories(id)
         );
 
-        CREATE TABLE IF NOT EXISTS stock (
+        CREATE TABLE IF NOT EXISTS stock(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_id INTEGER NOT NULL,
             size TEXT,
@@ -112,7 +129,7 @@ export const initDB = async () => {
             FOREIGN KEY(product_id) REFERENCES products(id)
         );
 
-        CREATE TABLE IF NOT EXISTS transactions (
+        CREATE TABLE IF NOT EXISTS transactions(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id INTEGER NOT NULL,
             stock_id INTEGER NOT NULL,
@@ -123,7 +140,7 @@ export const initDB = async () => {
             FOREIGN KEY(stock_id) REFERENCES stock(id)
         );
 
-        CREATE TABLE IF NOT EXISTS stock_logs (
+        CREATE TABLE IF NOT EXISTS stock_logs(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category_name TEXT,
             item_name TEXT,
@@ -133,9 +150,9 @@ export const initDB = async () => {
             date TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
-        -- Initial Seed for Categories
-        INSERT OR IGNORE INTO categories (name) VALUES ('Uniform');
-        INSERT OR IGNORE INTO categories (name) VALUES ('Kit');
+        --Initial Seed for Categories
+        INSERT OR IGNORE INTO categories(name) VALUES('Uniform');
+        INSERT OR IGNORE INTO categories(name) VALUES('Kit');
         `;
 
         await dbConnection.execute(schema);
@@ -157,19 +174,28 @@ export const getDB = () => {
 };
 
 // Seed Helper (Must be called after init)
+// Seed Helper (Must be called after init)
 export const seedAdmin = async () => {
     try {
         const db = getDB();
         const res = await db.query("SELECT * FROM users WHERE username = 'sunshine'");
+        const hash = await bcrypt.hash('sunshine@123', 10);
 
         if (res.values.length === 0) {
             console.log("Seeding Admin User...");
-            const hash = await bcrypt.hash('sunshine@123', 10);
             await db.run(
                 "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
                 ['sunshine', hash, 'admin']
             );
             console.log("Admin Seeded");
+        } else {
+            // Force reset password to ensure it works during demos
+            console.log("Admin exists, updating credentials...");
+            await db.run(
+                "UPDATE users SET password = ? WHERE username = 'sunshine'",
+                [hash]
+            );
+            console.log("Admin Credentials Updated");
         }
     } catch (e) {
         console.error("Seed Error:", e);

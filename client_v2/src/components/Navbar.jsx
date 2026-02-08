@@ -20,8 +20,15 @@ const Navbar = () => {
         setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     };
 
-    const handleLogout = () => {
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+    const onLogoutClick = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.removeItem('user');
+        window.dispatchEvent(new Event('storage'));
         navigate('/login');
     };
 
@@ -70,7 +77,7 @@ const Navbar = () => {
                         {theme === 'dark' ? '☀️' : '🌙'}
                     </button>
 
-                    <button onClick={handleLogout} className="btn" style={{ padding: '0.5rem 1rem', width: 'auto', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>Logout</button>
+                    <button onClick={onLogoutClick} className="btn" style={{ padding: '0.5rem 1rem', width: 'auto', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>Logout</button>
                 </div>
 
                 {/* Mobile Controls (Theme + Logout) */}
@@ -86,6 +93,26 @@ const Navbar = () => {
                     {/* Logout moved to Profile Page */}
                 </div>
             </div>
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutConfirm && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100,
+                    padding: '20px'
+                }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '300px', textAlign: 'center', padding: '1.5rem', color: 'var(--text-primary)' }}>
+                        <h3 style={{ margin: '0 0 1rem' }}>Log Out?</h3>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Are you sure you want to log out?</p>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={() => setShowLogoutConfirm(false)} className="btn" style={{ background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>Cancel</button>
+                            <button onClick={confirmLogout} className="btn" style={{ background: '#ef4444', color: 'white', border: 'none' }}>Log Out</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Mobile Menu Removed (Replaced by BottomNav) */}
         </nav>
     );

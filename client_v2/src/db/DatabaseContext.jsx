@@ -15,9 +15,9 @@ export const DatabaseProvider = ({ children }) => {
             try {
                 const success = await initDB();
 
-                // Enforce minimum 5 seconds loader time
+                // Enforce minimum 3.5 seconds loader time
                 const elapsed = Date.now() - start;
-                const remaining = Math.max(0, 5000 - elapsed);
+                const remaining = Math.max(0, 3500 - elapsed);
 
                 setTimeout(() => {
                     if (success) {

@@ -17,6 +17,11 @@ const ChangePasswordModal = ({ onClose }) => {
         setError('');
         setMessage('');
 
+        if (currentPassword === newPassword) {
+            setError("New password cannot be the same as the old password");
+            return;
+        }
+
         if (newPassword !== confirmPassword) {
             setError("New passwords do not match");
             return;
@@ -76,7 +81,8 @@ const ChangePasswordModal = ({ onClose }) => {
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
+            backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
         }}>
             <div className="card" style={{ width: '90%', maxWidth: '400px', position: 'relative' }}>
                 <button

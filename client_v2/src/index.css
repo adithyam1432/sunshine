@@ -1,96 +1,94 @@
 :root {
   /* =========================================
-     DEFAULT THEME: LIGHT MODE (Modern Glass)
+     DEFAULT THEME: LIGHT MODE (Ultra Glass)
      ========================================= */
 
-  /* Primary Brand Colors */
-  --primary: #4f46e5;
-  /* Indigo 600 */
-  --primary-dark: #4338ca;
-  /* Indigo 700 */
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  /* Primary with more vibrancy */
+  --primary: #6366f1;
+  /* Indigo 500 */
+  --primary-dark: #4f46e5;
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  /* Indigo -> Purple */
   --secondary: #ec4899;
-  /* Pink 500 */
   --accent: #06b6d4;
-  /* Cyan 500 */
 
-  /* Backgrounds */
-  /* Gradient Body for Glass Effect */
-  --bg-body-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  /* Backgrounds: Richer gradients for glass to pop */
+  /* Using mesh-like gradient hints */
+  --bg-body-gradient: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+    #f8fafc;
+  /* Base light */
+
   --bg-body: #f8fafc;
 
-  /* Glass Cards */
-  --bg-card: rgba(255, 255, 255, 0.65);
-  /* High transparency */
-  --bg-input: rgba(255, 255, 255, 0.5);
-  --bg-hover: rgba(255, 255, 255, 0.8);
+  /* Glass Cards: lighter and frostier */
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-input: rgba(255, 255, 255, 0.6);
+  --bg-hover: rgba(255, 255, 255, 0.9);
 
   /* Typography */
-  --text-primary: #000000;
-  /* Force Pure Black */
+  --text-primary: #1e293b;
   /* Slate 800 */
-  --text-secondary: #333333;
-  /* Dark Grey */
-  /* Slate 500 */
+  --text-secondary: #475569;
+  /* Slate 600 */
   --text-inverse: #ffffff;
 
-  /* Borders & Effects */
-  --border: rgba(255, 255, 255, 0.4);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-  --glass-stroke: rgba(255, 255, 255, 0.6);
+  /* Borders & Effects: Crisp White Edges */
+  --border: rgba(255, 255, 255, 0.8);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.8);
+  /* Stronger white border */
+  --glass-stroke: rgba(255, 255, 255, 0.8);
 
-  --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  /* Glass Shadow */
-  --shadow-hover: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  /* Soft, deep shadow */
+  --shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.15);
 
-  --input-border: #1e293b;
-  /* Dark border for light mode */
-
-  --radius: 20px;
-  /* Mooore rounded */
+  --input-border: #000000;
+  --radius: 24px;
+  /* Even softer corners */
   --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
 
-  /* Safe Area */
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
 }
 
 /* =========================================
-   DARK MODE OVERRIDE (Midnight Neon Glass)
+   DARK MODE OVERRIDE (Neon & Deep Space)
    ========================================= */
 html[data-theme='dark'] {
-  --primary: #6366f1;
-  /* Indigo 500 */
-  --primary-dark: #4f46e5;
-  --primary-gradient: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-  /* Neon Purple/Create */
+  --primary: #818cf8;
+  --primary-dark: #6366f1;
+  --primary-gradient: linear-gradient(135deg, #818cf8 0%, #d946ef 100%);
 
-  --bg-body-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  /* Deep Space */
+  --bg-body-gradient: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.25) 0px, transparent 50%),
+    #0f172a;
+  /* Deep Slate Base */
 
-  --bg-card: rgba(30, 41, 59, 0.4);
-  /* Very Transparent Dark */
-  --bg-input: rgba(15, 23, 42, 0.4);
-  --bg-hover: rgba(255, 255, 255, 0.1);
+  --bg-card: rgba(30, 41, 59, 0.65);
+  /* More visible glass in dark */
+  --bg-input: rgba(15, 23, 42, 0.6);
+  --bg-hover: rgba(255, 255, 255, 0.15);
 
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
 
-  --border: rgba(255, 255, 255, 0.05);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-  --glass-stroke: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.1);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.15);
+  /* Subtle white edge */
+  --glass-stroke: rgba(255, 255, 255, 0.15);
 
-  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  --shadow-hover: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+  --shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.7);
 
-  --input-border: #f8fafc;
-  /* Light border for dark mode */
+  --input-border: aqua;
 
   input,
   select,
   textarea {
     color: #ffffff !important;
-    /* Force White in Dark Mode */
   }
 }
 
@@ -129,6 +127,20 @@ html[data-theme='dark'] {
   }
 }
 
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
 /* Global Reset */
 *,
 *::before,
@@ -141,19 +153,20 @@ body {
   margin: 0;
   font-family: var(--font-family);
   background: var(--bg-body-gradient);
+  background-size: 200% 200%;
+  /* If we animate it later */
   background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   padding-top: var(--safe-top);
   padding-bottom: var(--safe-bottom);
   overflow-x: hidden;
-  transition: background 0.5s ease, color 0.3s ease;
   min-height: 100vh;
 }
 
-/* Typography */
+/* Typography Gradient Headers */
 h1 {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   margin: 0 0 0.5rem 0;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -162,7 +175,8 @@ h1 {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  /* Enhances text read/pop */
 }
 
 h2 {
@@ -361,16 +375,16 @@ html[data-theme='dark'] .navbar {
   }
 
   .nav-curve-path {
-    fill: rgba(255, 255, 255, 0.65);
-    /* Glassy Transparency */
+    fill: var(--bg-card);
+    backdrop-filter: blur(20px);
+    /* NOTE: Backdrop filter doesn't work on SVG elements in all browsers, but the fill color update helps */
     stroke: var(--glass-stroke);
     stroke-width: 1px;
     transition: fill 0.3s ease;
   }
 
   html[data-theme='dark'] .nav-curve-path {
-    fill: rgba(30, 41, 59, 0.7);
-    /* Dark Glass */
+    fill: var(--bg-card);
     stroke: var(--glass-stroke);
   }
 
@@ -494,4 +508,8 @@ html[data-theme='dark'] .navbar {
     overflow-x: auto;
     white-space: nowrap;
   }
+}
+
+jeep-sqlite {
+  display: none;
 }

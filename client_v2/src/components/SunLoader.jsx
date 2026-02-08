@@ -1,14 +1,14 @@
 import React from 'react';
 
 const SunLoader = () => {
-    return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'linear-gradient(to bottom, #0f172a 0%, #312e81 100%)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            zIndex: 9999, flexDirection: 'column', overflow: 'hidden'
-        }}>
-            <style>{`
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      background: 'linear-gradient(to bottom, #0f172a 0%, #312e81 100%)',
+      display: 'flex', justifyContent: 'center', alignItems: 'center',
+      zIndex: 9999, flexDirection: 'column', overflow: 'hidden'
+    }}>
+      <style>{`
         @keyframes rise {
           0% { transform: translateY(150px); opacity: 0; }
           40% { opacity: 1; }
@@ -42,21 +42,21 @@ const SunLoader = () => {
         }
       `}</style>
 
-            {/* Sun */}
-            <div className="sun"></div>
+      {/* Sun */}
+      <div className="sun"></div>
 
-            {/* Mountain Silouette */}
-            <div className="mountain"></div>
+      {/* Mountain Silouette */}
+      <div className="mountain"></div>
 
-            <h2 style={{
-                marginTop: '2rem', color: 'white', zIndex: 4,
-                fontFamily: 'sans-serif', fontWeight: 300, fontSize: '1.2rem',
-                opacity: 0, animation: 'fadeIn 2s ease-in 2s forwards'
-            }}>
-                Sun☀️Shine
-            </h2>
-        </div>
-    );
+      <h2 style={{
+        marginTop: '2rem', color: 'white', zIndex: 4,
+        fontFamily: 'sans-serif', fontWeight: 300, fontSize: '1.2rem',
+        opacity: 0, animation: 'fadeIn 2s ease-in 2s forwards'
+      }}>
+        Sun☀️Shine
+      </h2>
+    </div>
+  );
 };
 
 export default SunLoader;

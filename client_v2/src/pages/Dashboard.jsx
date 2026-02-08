@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useDB } from '../db/DatabaseContext';
 import { Capacitor } from '@capacitor/core';
-import { handleExport } from '../utils/exportHelper';
+import { handleExport } from '../utils/exportHelper.js';
+import { formatDate } from '../utils/dateHelper.js';
+import PreviewModal from '../components/PreviewModal'; // Import PreviewModal
+import EditItemModal from '../components/EditItemModal'; // Import EditItemModal
 
 import uniformIcon from '../assets/icons/uniform_tab.png';
 import kitIcon from '../assets/icons/kit_tab.png';
 import lowStockIcon from '../assets/icons/low_stock.png';
 import shareIcon from '../assets/icons/share.png';
+import editIcon from '../assets/icons/edit_item.png';
+import deleteIcon from '../assets/icons/delete_item.png';
 
 const Dashboard = () => {
     const { runQuery } = useDB();
@@ -16,8 +21,8 @@ const Dashboard = () => {
     const [recentActivity, setRecentActivity] = useState([]);
     const [notification, setNotification] = useState('');
 
-    // Export Modal State
-    const [exportModal, setExportModal] = useState({ show: false, title: '', fileName: '', data: [], columns: [] });
+    // Preview Modal State
+    const [previewModal, setPreviewModal] = useState({ show: false, title: '', fileName: '', data: [], columns: [] });
 
     // Tabs: 'uniform', 'kit', 'lowstock'
     const [activeTab, setActiveTab] = useState('uniform');
@@ -51,7 +56,7 @@ const Dashboard = () => {
 
             // 3. Recent Activity (Grouped)
             const actQuery = `
-                SELECT t.id, t.student_id, t.quantity, t.date, s.name as student_name, s.class, p.name as item_name, st.size
+                SELECT t.id, t.student_id, t.quantity, t.date, t.stock_id, s.name as student_name, s.class, p.name as item_name, st.size
                 FROM transactions t
                 JOIN students s ON t.student_id = s.id
                 JOIN stock st ON t.stock_id = st.id
@@ -75,6 +80,8 @@ const Dashboard = () => {
                     };
                 }
                 activityGroups[key].items.push({
+                    id: t.id,
+                    stock_id: t.stock_id,
                     name: t.item_name,
                     size: t.size,
                     quantity: t.quantity
@@ -89,14 +96,8 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const openExportModal = (title, fileName, data, columns) => {
-        setExportModal({ show: true, title, fileName, data, columns });
-    };
-
-    const triggerExport = (type) => {
-        const { title, fileName, data, columns } = exportModal;
-        handleExport(type, data, columns, fileName, title);
-        setExportModal({ ...exportModal, show: false });
+    const openPreviewModal = (title, fileName, data, columns) => {
+        setPreviewModal({ show: true, title, fileName, data, columns });
     };
 
     const prepareInventoryReport = () => {
@@ -114,7 +115,7 @@ const Dashboard = () => {
             total: i.total
         }));
 
-        openExportModal('Inventory Report', `inventory_report_${Date.now()}`, data, columns);
+        openPreviewModal('Inventory Report', `inventory_report_${Date.now()}`, data, columns);
     };
 
     // Helper to get unique uniform types
@@ -136,7 +137,8 @@ const Dashboard = () => {
     const [historyTab, setHistoryTab] = useState('Uniform'); // 'Uniform' | 'Kit'
 
     const openHistory = async () => {
-        const logs = await runQuery("SELECT * FROM stock_logs ORDER BY date DESC LIMIT 50");
+        // Fetch ALL logs (User request: "display all the history")
+        const logs = await runQuery("SELECT * FROM stock_logs ORDER BY date DESC");
         setHistoryLogs(logs);
         setShowHistoryModal(true);
     };
@@ -155,11 +157,115 @@ const Dashboard = () => {
 
         const data = filteredHistory.map(log => ({
             ...log,
-            date: new Date(log.date).toLocaleString(),
+            date: formatDate(log.date),
             size: log.size || '-'
         }));
 
-        openExportModal(`Stock History - ${historyTab}`, `stock_history_${historyTab}_${Date.now()}`, data, columns);
+        openPreviewModal(`Stock History - ${historyTab}`, `stock_history_${historyTab}_${Date.now()}`, data, columns);
+    };
+
+    // --- Edit/Delete Logic ---
+    const [editingItem, setEditingItem] = useState(null);
+
+    const handleDelete = async (item) => {
+        if (!window.confirm(`Are you sure you want to delete ${item.name} (${item.size || 'No Size'})? \nThis action creates a negative stock log but keeps history.`)) {
+            return;
+        }
+
+        // Declare pid outside try/catch or retrieve inside catch
+        let pid = null;
+
+        try {
+            // Find Product ID
+            const prods = await runQuery("SELECT id FROM products WHERE name = ?", [item.name]);
+            if (!prods.length) return;
+            pid = prods[0].id;
+
+            // --- LOG THE DELETION (User Request: "Correct in add stock history") ---
+            // We log the negative of the current total to show it was removed
+            await runQuery(
+                "INSERT INTO stock_logs (category_name, item_name, size, quantity, action, date) VALUES (?, ?, ?, ?, ?, ?)",
+                [item.category, item.name, item.size || '-', -item.total, 'DELETE', new Date().toISOString()]
+            );
+
+            // Delete Query (Delete rows matching product + size)
+            let query = "DELETE FROM stock WHERE product_id = ?";
+            const params = [pid];
+            if (item.size && item.size !== '-') {
+                query += " AND size = ?";
+                params.push(item.size);
+            } else {
+                query += " AND size IS NULL";
+            }
+
+            await runQuery(query, params);
+
+            // Cleanup: If no stock remains for this product, delete the product definition
+            const remaining = await runQuery("SELECT count(*) as count FROM stock WHERE product_id = ?", [pid]);
+            if (remaining.length > 0 && remaining[0].count === 0) {
+                await runQuery("DELETE FROM products WHERE id = ?", [pid]);
+            }
+
+            // Refresh
+            const loadDashboard = async () => {
+                const inventoryQuery = `
+                    SELECT p.name, c.name as category, s.size, SUM(s.quantity) as total 
+                    FROM stock s
+                    JOIN products p ON s.product_id = p.id
+                    JOIN categories c ON p.category_id = c.id
+                    GROUP BY p.name, s.size
+                 `;
+                const inventory = await runQuery(inventoryQuery);
+                setGroupedInventory(inventory);
+                setFullInventory(inventory);
+            };
+            loadDashboard();
+
+        } catch (err) {
+            console.error(err);
+            // Handle Foreign Key Constraint (Item used in transactions)
+            if (err.message && err.message.includes('787')) {
+                if (window.confirm("This item cannot be deleted because it has history (transactions). \n\nDo you want to clear its stock to 0 instead?")) {
+                    try {
+                        // Ensure pid is available
+                        if (!pid) {
+                            const prods = await runQuery("SELECT id FROM products WHERE name = ?", [item.name]);
+                            if (prods.length) pid = prods[0].id;
+                        }
+
+                        if (!pid) throw new Error("Product ID not found for cleanup.");
+
+                        let updateQuery = "UPDATE stock SET quantity = 0 WHERE product_id = ?";
+                        const updateParams = [pid];
+                        if (item.size && item.size !== '-') {
+                            updateQuery += " AND size = ?";
+                            updateParams.push(item.size);
+                        } else {
+                            updateQuery += " AND size IS NULL";
+                        }
+                        await runQuery(updateQuery, updateParams);
+                        // Refresh
+                        const loadDashboard = async () => {
+                            const inventoryQuery = `
+                                SELECT p.name, c.name as category, s.size, SUM(s.quantity) as total 
+                                FROM stock s
+                                JOIN products p ON s.product_id = p.id
+                                JOIN categories c ON p.category_id = c.id
+                                GROUP BY p.name, s.size
+                             `;
+                            const inventory = await runQuery(inventoryQuery);
+                            setGroupedInventory(inventory);
+                            setFullInventory(inventory);
+                        };
+                        loadDashboard();
+                    } catch (updateErr) {
+                        alert("Failed to clear stock: " + updateErr.message);
+                    }
+                }
+            } else {
+                alert("Delete failed: " + err.message);
+            }
+        }
     };
 
     return (
@@ -273,7 +379,18 @@ const Dashboard = () => {
                                     {groupedInventory
                                         .filter(i => i.name === selectedUniformItem)
                                         .map((item, idx) => (
-                                            <div key={idx} className="card" style={{ padding: '1rem', border: item.total === 0 ? '1px dashed var(--text-secondary)' : 'var(--glass-border)' }}>
+                                            <div key={idx} className="card" style={{ padding: '1rem', border: item.total === 0 ? '1px dashed var(--text-secondary)' : 'var(--glass-border)', position: 'relative' }}>
+
+                                                {/* Edit/Delete Controls */}
+                                                <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '5px' }}>
+                                                    <button onClick={() => setEditingItem(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }} title="Edit">
+                                                        <img src={editIcon} alt="Edit" style={{ width: '24px', height: '24px' }} />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }} title="Delete">
+                                                        <img src={deleteIcon} alt="Delete" style={{ width: '24px', height: '24px' }} />
+                                                    </button>
+                                                </div>
+
                                                 <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Size: {item.size}</div>
                                                 <div style={{
                                                     fontSize: '1.5rem',
@@ -294,7 +411,18 @@ const Dashboard = () => {
                 {activeTab === 'kit' && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
                         {groupedInventory.filter(i => i.category === 'Kit').map((item, idx) => (
-                            <div key={idx} className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+                            <div key={idx} className="card" style={{ padding: '1.5rem', textAlign: 'center', position: 'relative' }}>
+
+                                {/* Edit/Delete Controls */}
+                                <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '5px' }}>
+                                    <button onClick={() => setEditingItem(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }} title="Edit">
+                                        <img src={editIcon} alt="Edit" style={{ width: '24px', height: '24px' }} />
+                                    </button>
+                                    <button onClick={() => handleDelete(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }} title="Delete">
+                                        <img src={deleteIcon} alt="Delete" style={{ width: '24px', height: '24px' }} />
+                                    </button>
+                                </div>
+
                                 <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎒</div>
                                 <h3 style={{ margin: '0 0 0.5rem' }}>{item.name}</h3>
                                 <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: item.total <= 15 ? '#ef4444' : 'var(--primary)' }}>
@@ -359,9 +487,7 @@ const Dashboard = () => {
                                 </div>
                             </div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'right' }}>
-                                {new Date(group.date).toLocaleDateString()}
-                                <br />
-                                {new Date(group.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {formatDate(group.date).split(' ').map((part, idx) => <div key={idx}>{part}</div>)}
                             </div>
                         </div>
                     ))
@@ -400,7 +526,7 @@ const Dashboard = () => {
                                     <div key={log.id} style={{ padding: '10px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
                                             <div style={{ fontWeight: '600' }}>{log.item_name} {log.size && log.size !== '-' ? `(${log.size})` : ''}</div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{new Date(log.date).toLocaleString()}</div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{formatDate(log.date)}</div>
                                         </div>
                                         <div style={{ color: 'green', fontWeight: 'bold' }}>+{log.quantity}</div>
                                     </div>
@@ -410,30 +536,40 @@ const Dashboard = () => {
                     </div>
                 </div>
             )}
-            {/* Export Choice Modal */}
-            {exportModal.show && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100,
-                    padding: '20px'
-                }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
-                        <h3 style={{ margin: 0, textAlign: 'center' }}>Choose Format</h3>
-                        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>Export {exportModal.title}</p>
 
-                        <button onClick={() => triggerExport('csv')} className="btn" style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '12px' }}>
-                            📄 Export as CSV
-                        </button>
-                        <button onClick={() => triggerExport('pdf')} className="btn" style={{ background: 'var(--primary)', color: 'white', padding: '12px', border: 'none' }}>
-                            📑 Export as PDF
-                        </button>
+            {/* Preview Modal for Export */}
+            <PreviewModal
+                show={previewModal.show}
+                title={previewModal.title}
+                data={previewModal.data}
+                columns={previewModal.columns}
+                onCancel={() => setPreviewModal({ ...previewModal, show: false })}
+                onConfirm={() => {
+                    handleExport(previewModal.data, previewModal.columns, previewModal.fileName, previewModal.title);
+                    setPreviewModal({ ...previewModal, show: false });
+                }}
+            />
 
-                        <button onClick={() => setExportModal({ ...exportModal, show: false })} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginTop: '5px' }}>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
+
+
+            {/* Edit Item Modal */}
+            {editingItem && (
+                <EditItemModal
+                    item={editingItem}
+                    onClose={() => setEditingItem(null)}
+                    onUpdate={() => {
+                        // Force Refresh by toggling something or re-fetching?
+                        // The re-fetching is actually tricky because useEffect logic is self-contained.
+                        // But editingItem is just a modal. I need to trigger loadDashboard logic.
+                        // I'll assume standard React re-render + interval will pick it up, 
+                        // BUT `handleDelete` explicitly re-fetches. `onUpdate` should too.
+                        // I will lift `loadDashboard` out or simpler: reload window? No.
+                        // I'll make loadDashboard accessible? 
+                        // I will just rely on the 5-sec interval or force a fast reload.
+                        // Ideally, pass a reload trigger.
+                        window.location.reload(); // Simple brute force for now to respect 'onUpdate' fully
+                    }}
+                />
             )}
         </div>
     );

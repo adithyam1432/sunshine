@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Diagram</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: white;
+        }
+
+        .mermaid {
+            transform: scale(1.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mermaid">
+        erDiagram
+        users {
+        INTEGER id PK
+        TEXT username
+        TEXT password
+        TEXT role
+        }
+        inventory {
+        INTEGER id PK
+        TEXT name
+        TEXT category
+        TEXT size
+        INTEGER quantity
+        REAL price
+        }
+        transactions {
+        INTEGER id PK
+        TEXT student_name
+        TEXT student_class
+        INTEGER item_id FK
+        INTEGER quantity
+        TEXT date
+        }
+
+        inventory ||--o{ transactions : "distributed in"
+    </div>
+</body>
+
+</html>

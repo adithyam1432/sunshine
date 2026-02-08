@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useDB } from '../db/DatabaseContext';
+import CustomAlert from '../components/CustomAlert';
 
 const Distribute = () => {
     const { runQuery } = useDB();
-    const [message, setMessage] = useState('');
+
+    // Alert State
+    const [alertConfig, setAlertConfig] = useState({ isOpen: false, message: '', type: 'error' });
+
+    const showAlert = (message, type = 'error') => {
+        setAlertConfig({ isOpen: true, message, type });
+    };
+
+    const handleCloseAlert = () => {
+        setAlertConfig(prev => ({ ...prev, isOpen: false }));
+    };
+
 
     // --- Data Sources ---
     const [categories, setCategories] = useState([]);
@@ -94,7 +106,7 @@ const Distribute = () => {
 
     // Student Autocomplete Logic
     const handleStudentNameChange = (val) => {
-        setStudentName(val);
+        setStudentName(val.toUpperCase());
         // Reset ID if user types something new
         setSelectedStudentId(null);
     };
@@ -114,14 +126,19 @@ const Distribute = () => {
     // ADD TO LIST (Cart)
     const handleAddToCart = (e) => {
         e.preventDefault();
-        setMessage('');
 
         if (quantity <= 0) {
-            setMessage("Error: Quantity must be greater than 0");
+            showAlert("Quantity must be greater than 0");
             return;
         }
         if (quantity > maxQty) {
-            setMessage("Error: Not enough stock available!");
+            showAlert("Not enough stock available!");
+            return;
+        }
+
+        // Validate Item Selections
+        if (!selectedCategory || !selectedType || !selectedStockId) {
+            showAlert("Please select all item details (Type & Variant)");
             return;
         }
 
@@ -153,13 +170,21 @@ const Distribute = () => {
     };
 
     const handleConfirmDistribute = async () => {
-        setMessage('');
         if (cart.length === 0) {
-            setMessage("Error: No items in list!");
+            showAlert("No items in list!");
             return;
         }
         if (!studentName) {
-            setMessage("Error: Student Name required!");
+            showAlert("Student Name required!");
+            return;
+        }
+        if (!studentClass) {
+            showAlert("Class is required!");
+            return;
+        }
+        // If School field is visible (non-Uniform), it is mandatory
+        if (!isUniform && !studentSchool) {
+            showAlert("Previous School is required!");
             return;
         }
 
@@ -205,7 +230,7 @@ const Distribute = () => {
                 }
             }
 
-            setMessage("Distribution Successful!");
+            showAlert("Distribution Successful!", 'success');
 
             // Cleanup
             setCart([]);
@@ -220,7 +245,7 @@ const Distribute = () => {
 
         } catch (err) {
             console.error(err);
-            setMessage("Error: " + err.message);
+            showAlert("Error: " + err.message);
         }
     };
 
@@ -229,9 +254,16 @@ const Distribute = () => {
 
     return (
         <div className="container" style={{ paddingBottom: '100px' }}>
+            <CustomAlert
+                isOpen={alertConfig.isOpen}
+                message={alertConfig.message}
+                type={alertConfig.type}
+                onClose={handleCloseAlert}
+            />
+
             <div className="card">
                 <h2>Distribute Items</h2>
-                {message && <p style={{ color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
+                {/* message was removed */}
 
                 {/* --- Student Selection Section (Moved to Top for better flow when adding multi items) --- */}
                 <div style={{ background: 'var(--bg-input)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
@@ -286,7 +318,7 @@ const Distribute = () => {
                             <label>Previous School</label>
                             <input
                                 value={studentSchool}
-                                onChange={e => setStudentSchool(e.target.value)}
+                                onChange={e => setStudentSchool(e.target.value.toUpperCase())}
                                 placeholder="Enter School Name"
                             />
                         </div>

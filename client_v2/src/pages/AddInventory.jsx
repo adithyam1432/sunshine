@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDB } from '../db/DatabaseContext';
+import CreatableSelect from '../components/CreatableSelect';
+import CustomAlert from '../components/CustomAlert';
 
 const AddInventory = () => {
     // Data
@@ -14,11 +16,23 @@ const AddInventory = () => {
     const [quantity, setQuantity] = useState('');
     const [message, setMessage] = useState('');
 
+    // Alert State
+    const [alertConfig, setAlertConfig] = useState({ isOpen: false, message: '', type: 'error' });
+
+    const showAlert = (message, type = 'error') => {
+        setAlertConfig({ isOpen: true, message, type });
+    };
+
+    const handleCloseAlert = () => {
+        setAlertConfig(prev => ({ ...prev, isOpen: false }));
+    };
+
     // UI Helpers
     const [isCustomProduct, setIsCustomProduct] = useState(false);
 
     const { runQuery } = useDB();
 
+    // ... (UseEffects remain same) ...
     // 1. Fetch Categories
     useEffect(() => {
         const loadCats = async () => {
@@ -42,10 +56,10 @@ const AddInventory = () => {
         loadProds();
     }, [selectedCategory]);
 
-    // 3. Fetch Sizes for Selected Product (For suggestions)
+    // 3. Fetch Sizes for Selected Product
     useEffect(() => {
         if (!productName || isCustomProduct) return;
-        const prod = existingProducts.find(p => p.name === productName);
+        const prod = existingProducts.find(p => p.name.toUpperCase() === productName.toUpperCase());
         if (!prod) return;
 
         const loadSizes = async () => {
@@ -61,15 +75,37 @@ const AddInventory = () => {
 
     const handleAdd = async (e) => {
         e.preventDefault();
-        setMessage('');
 
-        const finalName = productName.trim();
+        let finalName = productName.trim();
         const finalSize = size.trim() || null;
         const qty = parseInt(quantity);
 
-        if (!finalName || isNaN(qty) || qty <= 0) {
-            setMessage("Error: Invalid Input");
+        if (!selectedCategory) {
+            showAlert("Please select a category");
             return;
+        }
+
+        if (!finalName) {
+            showAlert("Item Name is required");
+            return;
+        }
+
+        // Validate Size if NOT a Kit
+        if (!isKit && !finalSize) {
+            showAlert("Size is required for this category");
+            return;
+        }
+
+        if (isNaN(qty) || qty <= 0) {
+            showAlert("Quantity must be valid and greater than 0");
+            return;
+        }
+
+        const defaults = (isKit ? kitDefaults : uniformDefaults);
+        const defaultMatch = defaults.find(d => d.toLowerCase() === finalName.toLowerCase());
+
+        if (defaultMatch) {
+            finalName = defaultMatch; // Auto-correct casing
         }
 
         try {
@@ -87,7 +123,6 @@ const AddInventory = () => {
             }
 
             // B. Find or Create Stock (Grouping Logic)
-            // Check if this size exists for this product
             let stockCheckQuery = "SELECT * FROM stock WHERE product_id = ?";
             let stockCheckParams = [productId];
 
@@ -106,7 +141,7 @@ const AddInventory = () => {
                 // Update
                 const newTotal = existingStock[0].quantity + qty;
                 await runQuery("UPDATE stock SET quantity = ? WHERE id = ?", [newTotal, existingStock[0].id]);
-                setMessage(`Updated Stock! Total Count: ${newTotal}`);
+                showAlert(`Updated Stock! Total Count: ${newTotal}`, 'success');
                 finalQtyForNotify = newTotal;
             } else {
                 // Insert
@@ -114,7 +149,7 @@ const AddInventory = () => {
                     "INSERT INTO stock (product_id, size, quantity) VALUES (?, ?, ?)",
                     [productId, finalSize, qty]
                 );
-                setMessage("New Item Added to Inventory!");
+                showAlert("New Item Added to Inventory!", 'success');
                 finalQtyForNotify = qty;
             }
 
@@ -141,8 +176,6 @@ const AddInventory = () => {
             setProductName('');
             setIsCustomProduct(false);
 
-            // Don't reset Category to allow rapid entry in same category
-
             // Refetch products for the list
             if (!existing) {
                 const prods = await runQuery("SELECT * FROM products WHERE category_id = ?", [selectedCategory]);
@@ -154,7 +187,7 @@ const AddInventory = () => {
 
         } catch (err) {
             console.error(err);
-            setMessage("Error: " + err.message);
+            showAlert(err.message);
         }
     };
 
@@ -167,9 +200,15 @@ const AddInventory = () => {
 
     return (
         <div className="container" style={{ paddingBottom: '80px' }}>
+            <CustomAlert
+                isOpen={alertConfig.isOpen}
+                message={alertConfig.message}
+                type={alertConfig.type}
+                onClose={handleCloseAlert}
+            />
+
             <div className="card">
                 <h2>Add Stock</h2>
-                {message && <p style={{ color: message.startsWith('Error') ? 'red' : 'green', margin: '1rem 0' }}>{message}</p>}
 
                 <form onSubmit={handleAdd}>
                     {/* Category */}
@@ -185,79 +224,36 @@ const AddInventory = () => {
                     </div>
 
                     {/* Item Type (Product Name) */}
-                    <div className="form-group">
-                        <label>Item Type</label>
-                        {/* Logic: Show Dropdown with Defaults + Existing + Custom Option */}
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <select
-                                value={isCustomProduct ? '__custom__' : productName}
-                                onChange={e => {
-                                    if (e.target.value === '__custom__') {
-                                        setIsCustomProduct(true);
-                                        setProductName('');
-                                    } else {
-                                        setIsCustomProduct(false);
-                                        setProductName(e.target.value);
-                                    }
-                                }}
-                                style={{ flex: 1, padding: '12px' }}
-                            >
-                                <option value="">-- Select Type --</option>
-                                {/* Default Suggestions specific to Category */}
-                                {(isKit ? kitDefaults : uniformDefaults).map(def => (
-                                    <option key={def} value={def}>{def}</option>
-                                ))}
-                                {/* Existing Items in DB not in defaults */}
-                                {existingProducts
-                                    .filter(p => !(isKit ? kitDefaults : uniformDefaults).includes(p.name))
-                                    .map(p => (
-                                        <option key={p.id} value={p.name}>{p.name}</option>
-                                    ))
-                                }
-                                <option value="__custom__" style={{ fontWeight: 'bold' }}>+ Add New Type</option>
-                            </select>
-                        </div>
-                        {isCustomProduct && (
-                            <input
-                                placeholder="Enter New Item Name"
-                                value={productName}
-                                onChange={e => setProductName(e.target.value)}
-                                style={{ marginTop: '0.5rem' }}
-                                autoFocus
-                            />
-                        )}
-                    </div>
+                    <CreatableSelect
+                        label="Item Type"
+                        placeholder="Select or Enter New Item Name"
+                        value={productName}
+                        onChange={(val) => {
+                            const upperVal = val.toUpperCase();
+                            setProductName(upperVal);
+                            const exists = existingProducts.some(p => p.name.toUpperCase() === upperVal);
+                            setIsCustomProduct(!exists);
+                        }}
+                        options={[
+                            ...(isKit ? kitDefaults : uniformDefaults),
+                            ...existingProducts
+                                .filter(p => !(isKit ? kitDefaults : uniformDefaults).some(def => def.toLowerCase() === p.name.toLowerCase()))
+                                .map(p => p.name)
+                        ]}
+                    />
 
                     {/* Size (Hidden for Kit) */}
                     {!isKit && (
-                        <div className="form-group">
-                            <label>Size</label>
-                            {/* Suggest Existing Sizes if available */}
-                            {existingSizes.length > 0 && (
-                                <div style={{ marginBottom: '0.5rem', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                                    <span style={{ fontSize: '0.8rem', color: '#888' }}>Existing: </span>
-                                    {existingSizes.map((s, idx) => ( // s is object {size, count}
-                                        <span
-                                            key={idx}
-                                            onClick={() => setSize(s.size)}
-                                            style={{
-                                                background: 'var(--bg-hover)', padding: '4px 8px', borderRadius: '12px',
-                                                fontSize: '0.8rem', cursor: 'pointer', border: '1px solid var(--border)',
-                                                display: 'flex', alignItems: 'center', gap: '4px'
-                                            }}
-                                        >
-                                            <strong>{s.size}</strong>
-                                            <span style={{ fontSize: '0.7em', color: 'var(--text-inverse)', background: 'var(--primary)', padding: '1px 6px', borderRadius: '10px' }}>
-                                                {s.count}
-                                            </span>
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                            <input
-                                placeholder="Size (e.g. M, 32, 40)"
+                        <div style={{ marginTop: '1rem' }}>
+                            <CreatableSelect
+                                label="Size"
+                                placeholder="Select or Enter Size (e.g. M, 32)"
                                 value={size}
-                                onChange={e => setSize(e.target.value)}
+                                onChange={(val) => setSize(val.toUpperCase())}
+                                options={existingSizes.map(s => ({
+                                    value: s.size,
+                                    label: `${s.size} ${s.count ? `(Qty: ${s.count})` : ''}`
+                                }))}
                             />
                         </div>
                     )}

@@ -5,16 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Student Inventory Management System</title>
+    <title>Sunshine Inventory Management System</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
 
     <style>
         /* Global Styles */
         body {
-            background: #191919;
+            background: #ffffff;
         }
 
         /* Logo Styling - Top Left Corner */
@@ -321,8 +321,8 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             margin: 0;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            color: #333;
+            text-shadow: none;
         }
 
         /* Splash Cursor */
@@ -355,20 +355,20 @@
 <body>
 
     <!-- Persistent Logo -->
-    <img src="cbs_logo.png" class="cbs-logo" alt="CBS Logo">
+    <img src="sources/cbs_logo.png" class="cbs-logo" alt="CBS Logo">
 
     <div class="reveal">
         <div class="slides">
 
             <!-- Slide 1: Title & Team -->
             <section>
-                <h2>student inventory management system</h2>
+                <h2>Sunshine Inventory Management System</h2>
                 <div style="text-align: left; margin-top: 2em; display: inline-block;">
-                    <p style="margin-bottom: 0.5em;">student names:</p>
+                    <p style="margin-bottom: 0.5em;">Project Team Members:</p>
                     <ol>
-                        <li>Adithya M</li>
-                        <li>Lavanya M</li>
-                        <li>Reeta P</li>
+                        <li>Adithya M - P02DR25S126OO1</li>
+                        <li>Lavanya M - P02DR25S126O12</li>
+                        <li>Reeta P - P02DR25S126O22</li>
                     </ol>
                 </div>
             </section>
@@ -397,7 +397,16 @@
                 </ul>
             </section>
 
-            <!-- Slide 4: Objective -->
+            <!-- Slide 4: Certificate of Approval -->
+            <section>
+                <h3>Certificate of Approval</h3>
+                <div style="background: white; padding: 10px; border-radius: 8px; display: inline-block;">
+                    <img src="sources/certificate_approval.png"
+                        style="max-height: 550px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                </div>
+            </section>
+
+            <!-- Slide 5: Objective -->
             <section>
                 <h3>Objective Of The System</h3>
                 <ul style="font-size: 0.8em; line-height: 1.5;">
@@ -548,7 +557,7 @@
             <section>
                 <h3>ER Diagram</h3>
                 <div style="background: white; padding: 20px; border-radius: 8px;">
-                    <img src="er_diagram.png" style="max-height: 500px; max-width: 100%; object-fit: contain;">
+                    <img src="sources/er_diagram.png" style="max-height: 500px; max-width: 100%; object-fit: contain;">
                 </div>
             </section>
 
@@ -557,19 +566,19 @@
                 <h3>App Interface</h3>
                 <div class="sc-grid">
                     <div class="sc-item">
-                        <img src="distribute_tab_new.png" alt="Distribution">
+                        <img src="sources/distribute_tab_new.png" alt="Distribution">
                         <h5>Distribute Tab</h5>
                     </div>
                     <div class="sc-item">
-                        <img src="add_stock_tab_new.png" alt="Add Stock">
+                        <img src="sources/add_stock_tab_new.png" alt="Add Stock">
                         <h5>Add Stocks</h5>
                     </div>
                     <div class="sc-item">
-                        <img src="history_tab_new.png" alt="History">
+                        <img src="sources/history_tab_new.png" alt="History">
                         <h5>History Tab</h5>
                     </div>
                     <div class="sc-item">
-                        <img src="login_page_new.png" alt="Login">
+                        <img src="sources/login_page_new.png" alt="Login">
                         <h5>Login Page</h5>
                     </div>
                 </div>
@@ -583,11 +592,11 @@
                     <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
                         <h4
                             style="color: #61dafb; font-size: 1.2em; border-bottom: 2px solid #61dafb; padding-bottom: 10px; margin-bottom: 20px;">
-                            Frontend (Client Side)</h4>
+                            Frontend </h4>
                         <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
                             <li style="margin-bottom: 10px;"><strong>Language:</strong> JavaScript (React JSX)</li>
                             <li style="margin-bottom: 10px;"><strong>Framework:</strong> React.js</li>
-                            <li><strong>Styling:</strong> Vanilla CSS (CSS3)</li>
+                            <li><strong>Styling:</strong>CSS (CSS3)</li>
                         </ul>
                     </div>
 
@@ -595,7 +604,7 @@
                     <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
                         <h4
                             style="color: #68bd45; font-size: 1.2em; border-bottom: 2px solid #68bd45; padding-bottom: 10px; margin-bottom: 20px;">
-                            Backend (Server Side)</h4>
+                            Backend</h4>
                         <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
                             <li style="margin-bottom: 10px;"><strong>Language:</strong> JavaScript</li>
                             <li style="margin-bottom: 10px;"><strong>Framework:</strong> Express.js</li>
@@ -605,12 +614,28 @@
                 </div>
             </section>
 
+            <!-- Slide 9: Thank You -->
+            <section>
+                <div
+                    style="background: rgba(255,255,255,0.9); padding: 50px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    <h2 style="color: #2ecc71; margin-bottom: 20px; font-size: 3em;">Thank You!</h2>
+                </div>
+            </section>
+
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
     <script>
-        Reveal.initialize();
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'convex', // none/fade/slide/convex/concave/zoom
+            transitionSpeed: 'default', // default/fast/slow
+            backgroundTransition: 'zoom', // none/fade/slide/convex/concave/zoom
+        });
 
         // Flow Chart Logic
         let isSimulating = false;

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDB } from '../db/DatabaseContext';
-import { handleExport } from '../utils/exportHelper';
+import { handleExport } from '../utils/exportHelper.js';
+import { formatDate } from '../utils/dateHelper.js';
+import PreviewModal from '../components/PreviewModal';
+import EditTransactionModal from '../components/EditTransactionModal';
 import shareIcon from '../assets/icons/share.png';
+import editIcon from '../assets/icons/edit_item.png';
+import deleteIcon from '../assets/icons/delete_item.png';
 
 const Orders = () => {
     const [transactions, setTransactions] = useState([]); // Raw flat data
@@ -13,13 +18,16 @@ const Orders = () => {
 
     const { runQuery } = useDB();
 
+    // Reload Trigger
+    const [reloadKey, setReloadKey] = useState(0);
+
     useEffect(() => {
         const load = async () => {
             try {
                 // Join to get item details AND category
                 const sql = `
                     SELECT t.id, stu.id as student_id, stu.name as student_name, stu.class as student_class, 
-                           t.quantity, t.date, 
+                           t.quantity, t.stock_id, t.date, 
                            p.name as item_name, s.size,
                            c.name as category_name
                     FROM transactions t
@@ -36,7 +44,7 @@ const Orders = () => {
             }
         };
         load();
-    }, []);
+    }, [reloadKey]);
 
     // Grouping Logic
     useEffect(() => {
@@ -49,7 +57,6 @@ const Orders = () => {
 
         transactions.forEach(t => {
             // Create a unique key for the "Order" (same student, same time)
-            // Using ISO string up to seconds to be safe, or just the raw date string if it comes from our new Batch Distribute
             const key = `${t.student_id}_${t.date}`;
 
             if (!groups[key]) {
@@ -58,17 +65,19 @@ const Orders = () => {
                     date: t.date,
                     student_name: t.student_name,
                     student_class: t.student_class,
-                    category_name: t.category_name, // Assuming mixed categories don't happen often in batch, or we just take the first one
+                    category_name: t.category_name,
                     items: [] // List of items in this order
                 };
             }
 
             // Add item detail
             groups[key].items.push({
+                id: t.id,
+                stock_id: t.stock_id,
                 name: t.item_name,
                 size: t.size,
                 quantity: t.quantity,
-                category: t.category_name // track category per item if needed
+                category: t.category_name
             });
         });
 
@@ -110,25 +119,12 @@ const Orders = () => {
         setStartDate(start.toISOString().split('T')[0]);
     };
 
-    const formatDateTime = (isoString) => {
-        const date = new Date(isoString);
-        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${time} of ${day}-${month}-${year}`;
-    };
+    // Modal State
+    const [previewModal, setPreviewModal] = useState({ show: false, title: '', fileName: '', data: [], columns: [] });
+    const [editingTx, setEditingTx] = useState(null);
 
-    const [exportModal, setExportModal] = useState({ show: false, title: '', fileName: '', data: [], columns: [] });
-
-    const openExportModal = (title, fileName, data, columns) => {
-        setExportModal({ show: true, title, fileName, data, columns });
-    };
-
-    const triggerExport = (type) => {
-        const { title, fileName, data, columns } = exportModal;
-        handleExport(type, data, columns, fileName, title);
-        setExportModal({ ...exportModal, show: false });
+    const openPreviewModal = (title, fileName, data, columns) => {
+        setPreviewModal({ show: true, title, fileName, data, columns });
     };
 
     const handleShare = () => {
@@ -145,7 +141,7 @@ const Orders = () => {
             if (relevantItems.length === 0) return null;
 
             return {
-                date: formatDateTime(t.date),
+                date: formatDate(t.date),
                 student_name: t.student_name,
                 student_class: t.student_class,
                 item_names: relevantItems.map(i => `${i.name}${i.size ? ` (${i.size})` : ''}`).join(', '),
@@ -153,7 +149,61 @@ const Orders = () => {
             };
         }).filter(r => r !== null);
 
-        openExportModal(`${activeTab} Orders`, `orders_${activeTab}_${startDate || 'all'}_to_${endDate || 'all'}`, data, columns);
+        openPreviewModal(`${activeTab} Orders`, `orders_${activeTab}_${startDate || 'all'}_to_${endDate || 'all'}`, data, columns);
+    };
+
+    // --- Action Handlers ---
+
+    const handleDelete = async (txId, stockId, qty) => {
+        if (!window.confirm("Are you sure you want to delete this record?\nStock will be returned to inventory.")) return;
+
+        try {
+            // 1. Return Stock
+            await runQuery(`UPDATE stock SET quantity = quantity + ? WHERE id = ?`, [qty, stockId]);
+
+            // 2. Delete Transaction
+            await runQuery(`DELETE FROM transactions WHERE id = ?`, [txId]);
+
+            // 3. Keep Log (Optional, maybe log the reversal? For now, no log specified, just cleanup)
+            // Ideally we insert a "restock" log in stock_logs, but let's keep it simple.
+
+            setReloadKey(prev => prev + 1);
+        } catch (err) {
+            console.error(err);
+            alert("Delete failed: " + err.message);
+        }
+    };
+
+    const handleUpdate = async (txId, newQty, oldQty, stockId) => {
+        const diff = newQty - oldQty;
+        if (diff === 0) {
+            setEditingTx(null);
+            return;
+        }
+
+        try {
+            // Check stock availability if taking MORE
+            if (diff > 0) {
+                const stock = await runQuery("SELECT quantity FROM stock WHERE id = ?", [stockId]);
+                if (stock.length === 0) throw new Error("Stock item not found");
+                if (stock[0].quantity < diff) {
+                    alert(`Not enough stock to increase quantity. Available: ${stock[0].quantity}`);
+                    return;
+                }
+            }
+
+            // 1. Adjust Stock (Inverse of diff: if diff is +2 (took 2 more), stock should be -2)
+            await runQuery(`UPDATE stock SET quantity = quantity - ? WHERE id = ?`, [diff, stockId]);
+
+            // 2. Update Transaction
+            await runQuery(`UPDATE transactions SET quantity = ? WHERE id = ?`, [newQty, txId]);
+
+            setEditingTx(null);
+            setReloadKey(prev => prev + 1);
+        } catch (err) {
+            console.error(err);
+            alert("Update failed: " + err.message);
+        }
     };
 
     return (
@@ -235,8 +285,7 @@ const Orders = () => {
                             <th style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>Date</th>
                             <th style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>Student</th>
                             <th style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>Class</th>
-                            <th style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>Items</th>
-                            <th style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>Qty</th>
+                            <th style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>Items & Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -249,18 +298,26 @@ const Orders = () => {
                             return (
                                 <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                     <td style={{ padding: '1rem', whiteSpace: 'nowrap', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                        {formatDateTime(t.date).split(' of ').map((part, i) => <div key={i}>{part}</div>)}
+                                        {formatDate(t.date).split(' ').map((part, i) => <div key={i}>{part}</div>)}
                                     </td>
                                     <td style={{ padding: '1rem', fontWeight: '600' }}>{t.student_name}</td>
                                     <td style={{ padding: '1rem' }}>{t.student_class}</td>
                                     <td style={{ padding: '1rem' }}>
                                         {relevantItems.map((item, i) => (
-                                            <div key={i}>{item.name} {item.size ? `(${item.size})` : ''}</div>
-                                        ))}
-                                    </td>
-                                    <td style={{ padding: '1rem' }}>
-                                        {relevantItems.map((item, i) => (
-                                            <div key={i}>{item.quantity}</div>
+                                            <div key={i} style={{ marginBottom: relevantItems.length > 1 ? '10px' : '0', borderBottom: relevantItems.length > 1 && i !== relevantItems.length - 1 ? '1px dashed var(--border)' : 'none', paddingBottom: '5px' }}>
+                                                <div style={{ fontWeight: '500', marginBottom: '4px' }}>
+                                                    {item.name} {item.size ? `(${item.size})` : ''}
+                                                    <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>x{item.quantity}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '10px' }}>
+                                                    <button onClick={() => setEditingTx(item)} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }} title="Edit">
+                                                        <img src={editIcon} alt="Edit" style={{ width: '14px', height: '14px' }} /> Edit
+                                                    </button>
+                                                    <button onClick={() => handleDelete(item.id, item.stock_id, item.quantity)} style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#ef4444' }} title="Delete">
+                                                        <img src={deleteIcon} alt="Delete" style={{ width: '14px', height: '14px' }} /> Delete
+                                                    </button>
+                                                </div>
+                                            </div>
                                         ))}
                                     </td>
                                 </tr>
@@ -268,7 +325,7 @@ const Orders = () => {
                         })}
                         {filteredTransactions.length === 0 && (
                             <tr>
-                                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                                <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                                     No {activeTab} orders found for this period.
                                 </td>
                             </tr>
@@ -276,32 +333,29 @@ const Orders = () => {
                     </tbody>
                 </table>
             </div>
-            {/* Export Choice Modal */}
-            {exportModal.show && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100,
-                    padding: '20px'
-                }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
-                        <h3 style={{ margin: 0, textAlign: 'center' }}>Choose Format</h3>
-                        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>Export {exportModal.title}</p>
 
-                        <button onClick={() => triggerExport('csv')} className="btn" style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '12px' }}>
-                            📄 Export as CSV
-                        </button>
-                        <button onClick={() => triggerExport('pdf')} className="btn" style={{ background: 'var(--primary)', color: 'white', padding: '12px', border: 'none' }}>
-                            📑 Export as PDF
-                        </button>
+            {/* Preview Modal */}
+            <PreviewModal
+                show={previewModal.show}
+                title={previewModal.title}
+                data={previewModal.data}
+                columns={previewModal.columns}
+                onCancel={() => setPreviewModal({ ...previewModal, show: false })}
+                onConfirm={() => {
+                    handleExport(previewModal.data, previewModal.columns, previewModal.fileName, previewModal.title);
+                    setPreviewModal({ ...previewModal, show: false });
+                }}
+            />
 
-                        <button onClick={() => setExportModal({ ...exportModal, show: false })} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', marginTop: '5px' }}>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
+            {/* Edit Transaction Modal */}
+            {editingTx && (
+                <EditTransactionModal
+                    transaction={editingTx}
+                    onClose={() => setEditingTx(null)}
+                    onUpdate={handleUpdate}
+                />
             )}
-        </div >
+        </div>
     );
 };
 

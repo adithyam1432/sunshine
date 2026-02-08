@@ -7,16 +7,20 @@ import userIcon from '../assets/icons/user.png';
 import passwordIcon from '../assets/icons/password.png';
 import eyeIcon from '../assets/icons/eye.png';
 
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
+
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [isForgotOpen, setIsForgotOpen] = useState(false);
     const navigate = useNavigate();
 
     const { runQuery } = useDB();
 
     const handleLogin = async (e) => {
+        // ... (existing Login Logic is fine)
         e.preventDefault();
         try {
             // Local Database Logic
@@ -34,6 +38,7 @@ const Login = () => {
             if (isMatch) {
                 const userData = { id: user.id, username: user.username, role: user.role };
                 localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('last_login_date', new Date().toDateString());
 
                 // Trigger event for Navbar to update
                 window.dispatchEvent(new Event('storage'));
@@ -125,9 +130,28 @@ const Login = () => {
                             />
                         </div>
                     </div>
-                    <button type="submit" className="btn btn-primary">Sign In</button>
+
+                    <button type="submit" className="btn btn-primary" style={{ marginBottom: '1rem' }}>Sign In</button>
+
+                    <div style={{ textAlign: 'center' }}>
+                        <button
+                            type="button"
+                            style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline' }}
+                            onClick={() => setIsForgotOpen(true)}
+                        >
+                            Forgot Password?
+                        </button>
+                    </div>
+
                 </form>
             </div>
+
+            {isForgotOpen && (
+                <ForgotPasswordModal
+                    onClose={() => setIsForgotOpen(false)}
+                    initialUsername={username}
+                />
+            )}
         </div>
     );
 };
