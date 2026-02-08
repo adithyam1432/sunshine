@@ -15,6 +15,9 @@
         /* Global Styles */
         body {
             background: #ffffff;
+            cursor: none;
+            /* Hide default cursor if we have a custom one, or keep it? varied preference. Let's keep default pointer for usability but add trail. */
+            cursor: default;
         }
 
         /* Logo Styling - Top Left Corner */
@@ -325,28 +328,28 @@
             text-shadow: none;
         }
 
-        /* Neon Particle Cursor */
-        .neon-particle {
+        /* Colorful Confetti Cursor */
+        .confetti-particle {
             position: absolute;
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #00f260, #0575e6);
             pointer-events: none;
             z-index: 9999;
-            animation: particleFade 0.6s ease-out forwards;
-            box-shadow: 0 0 10px rgba(0, 242, 96, 0.8);
-            mix-blend-mode: screen;
+            animation: confettiFade 0.8s ease-out forwards;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            /* Subtle shadow for white bg */
         }
 
-        @keyframes particleFade {
+        @keyframes confettiFade {
             0% {
-                transform: scale(1);
-                opacity: 1;
+                transform: scale(1) translateY(0);
+                opacity: 0.9;
             }
 
             100% {
-                transform: scale(3);
+                transform: scale(0.4) translateY(20px);
+                /* Falls down */
                 opacity: 0;
             }
         }
@@ -586,19 +589,16 @@
                 </div>
             </section>
 
-            <!-- Slide 8: Technologies Used -->
+            <!-- Slide 8: Tools Used -->
             <section>
-                <h3>Technologies Used</h3>
+                <h3>Tools Used</h3>
                 <div style="display: flex; justify-content: space-around; text-align: left; margin-top: 30px;">
-                    <!-- Frontend -->
                     <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
                         <h4
                             style="color: #61dafb; font-size: 1.2em; border-bottom: 2px solid #61dafb; padding-bottom: 10px; margin-bottom: 20px;">
-                            Frontend </h4>
+                            IDE </h4>
                         <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
-                            <li style="margin-bottom: 10px;"><strong>Language:</strong> JavaScript (React JSX)</li>
-                            <li style="margin-bottom: 10px;"><strong>Framework:</strong> React.js</li>
-                            <li><strong>Styling:</strong>CSS (CSS3)</li>
+                            <li style="margin-bottom: 10px;">Antigravity</li>
                         </ul>
                     </div>
 
@@ -606,11 +606,17 @@
                     <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
                         <h4
                             style="color: #68bd45; font-size: 1.2em; border-bottom: 2px solid #68bd45; padding-bottom: 10px; margin-bottom: 20px;">
-                            Backend</h4>
+                            AI models</h4>
                         <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
-                            <li style="margin-bottom: 10px;"><strong>Language:</strong> JavaScript</li>
-                            <li style="margin-bottom: 10px;"><strong>Framework:</strong> Express.js</li>
-                            <li><strong>Database Engine:</strong> SQLite (Relational Database)</li>
+                            <li style="margin-bottom: 10px;"> Gemini 3.0</li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; width: 45%;">
+                        <h4
+                            style="color: #68bd45; font-size: 1.2em; border-bottom: 2px solid #68bd45; padding-bottom: 10px; margin-bottom: 20px;">
+                            AI models</h4>
+                        <ul style="font-size: 0.8em; line-height: 1.6; list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 10px;"> Gemini 3.0</li>
                         </ul>
                     </div>
                 </div>
@@ -778,51 +784,61 @@
             next();
         }
 
-        // Neon Particle Trail Effect
+        // Colorful Confetti Cursor Effect
+        const colors = ['#e74c3c', '#3498db', '#9b59b6', '#f1c40f', '#2ecc71', '#e67e22'];
+
         document.addEventListener('mousemove', function (e) {
             // Density control
-            if (Math.random() > 0.4) return;
+            if (Math.random() > 0.5) return;
 
             const particle = document.createElement('div');
-            particle.className = 'neon-particle';
+            particle.className = 'confetti-particle';
 
-            // Randomize colors slightly for visual richness
-            const randomType = Math.random();
-            if (randomType < 0.33) {
-                particle.style.background = 'linear-gradient(135deg, #ff00cc, #333399)'; // Pink/Purple
-                particle.style.boxShadow = '0 0 10px rgba(255, 0, 204, 0.8)';
-            } else if (randomType < 0.66) {
-                particle.style.background = 'linear-gradient(135deg, #00c6ff, #0072ff)'; // Blue
-                particle.style.boxShadow = '0 0 10px rgba(0, 198, 25, 0.8)';
-            } else {
-                particle.style.background = 'linear-gradient(135deg, #f09819, #edde5d)'; // Gold
-                particle.style.boxShadow = '0 0 10px rgba(240, 152, 25, 0.8)';
-            }
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.background = color;
 
-            particle.style.left = (e.pageX - 4) + 'px';
-            particle.style.top = (e.pageY - 4) + 'px';
+            const size = Math.random() * 6 + 4;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+
+            particle.style.left = (e.pageX - size / 2) + 'px';
+            particle.style.top = (e.pageY - size / 2) + 'px';
             document.body.appendChild(particle);
 
             setTimeout(() => {
                 if (particle.parentNode) particle.parentNode.removeChild(particle);
-            }, 600);
+            }, 800);
         });
 
         document.addEventListener('click', function (e) {
             // Burst Explosion on Click
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
-                particle.className = 'neon-particle';
-                particle.style.background = 'radial-gradient(circle, #fff, #ff0000)'; // Red burst
+                particle.className = 'confetti-particle';
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.background = color;
+
+                const size = Math.random() * 8 + 5;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
 
                 // Scatter
                 const angle = Math.random() * Math.PI * 2;
-                const dist = Math.random() * 50;
+                const dist = Math.random() * 80 + 20;
                 const dx = Math.cos(angle) * dist;
                 const dy = Math.sin(angle) * dist;
 
-                particle.style.left = (e.pageX + dx) + 'px';
-                particle.style.top = (e.pageY + dy) + 'px';
+                particle.style.left = e.pageX + 'px';
+                particle.style.top = e.pageY + 'px';
+
+                // Add initial transition for the burst
+                particle.style.transition = 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+
+                // Trigger animation
+                setTimeout(() => {
+                    particle.style.transform = `translate(${dx}px, ${dy}px) scale(0)`;
+                    particle.style.opacity = '0';
+                }, 10);
 
                 document.body.appendChild(particle);
                 setTimeout(() => {
