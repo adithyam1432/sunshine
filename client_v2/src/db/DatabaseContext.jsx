@@ -57,6 +57,23 @@ export const DatabaseProvider = ({ children }) => {
         }
     };
 
+    // Transaction Helpers
+    const beginTransaction = async () => {
+        if (!isReady) throw new Error("Database not ready");
+        const db = getDB();
+        await db.beginTransaction();
+    };
+
+    const commitTransaction = async () => {
+        const db = getDB();
+        await db.commitTransaction();
+    };
+
+    const rollbackTransaction = async () => {
+        const db = getDB();
+        await db.rollbackTransaction();
+    };
+
     if (error) {
         return <div style={{ padding: 20, color: 'red' }}>Error: {error}</div>;
     }
@@ -66,7 +83,7 @@ export const DatabaseProvider = ({ children }) => {
     }
 
     return (
-        <DatabaseContext.Provider value={{ runQuery, isReady }}>
+        <DatabaseContext.Provider value={{ runQuery, isReady, beginTransaction, commitTransaction, rollbackTransaction }}>
             {children}
         </DatabaseContext.Provider>
     );

@@ -18,7 +18,7 @@ const Profile = () => {
     const user = JSON.parse(localStorage.getItem('user'));
 
     // Use the context to run queries
-    const { runQuery } = useDB();
+    const { runQuery, beginTransaction, commitTransaction, rollbackTransaction } = useDB();
 
     // Logout Confirmation State
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -111,7 +111,7 @@ const Profile = () => {
                 }
 
                 // Restore Data
-                await runQuery('BEGIN TRANSACTION');
+                await beginTransaction();
                 try {
                     const tables = ['stock_logs', 'transactions', 'stock', 'products', 'categories', 'students', 'users'];
 
@@ -167,12 +167,12 @@ const Profile = () => {
                         }
                     }
 
-                    await runQuery('COMMIT');
+                    await commitTransaction();
                     alert("Data Imported Successfully! Restarting app...");
                     window.location.reload();
 
                 } catch (err) {
-                    await runQuery('ROLLBACK');
+                    await rollbackTransaction();
                     console.error(err);
                     alert("Import Failed during DB Write: " + err.message);
                 }
