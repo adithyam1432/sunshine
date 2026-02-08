@@ -325,27 +325,32 @@
             text-shadow: none;
         }
 
-        /* Splash Cursor */
-        .cursor-trail {
+        /* Magic Splash Cursor */
+        .magic-sparkle {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #f1c40f 0%, rgba(231, 76, 60, 0) 80%);
             pointer-events: none;
             z-index: 9999;
-            animation: fadeOut 0.6s linear forwards;
-            mix-blend-mode: screen;
+            animation: sparkleAnim 0.8s linear forwards;
+            font-size: 18px;
+            opacity: 1;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+            /* Glowing text */
+            user-select: none;
         }
 
-        @keyframes fadeOut {
+        @keyframes sparkleAnim {
             0% {
-                transform: scale(1);
+                transform: scale(0.5) rotate(0deg);
                 opacity: 1;
             }
 
+            50% {
+                transform: scale(1.2) rotate(90deg);
+                opacity: 0.8;
+            }
+
             100% {
-                transform: scale(4);
+                transform: scale(0) rotate(180deg) translateY(30px);
                 opacity: 0;
             }
         }
@@ -558,7 +563,7 @@
                 <h3>ER Diagram</h3>
                 <div style="background: white; padding: 20px; border-radius: 8px;">
                     <img src="sources/er_diagram_chen.png"
-                        style="max-height: 500px; max-width: 100%; object-fit: contain;">
+                        style="max-height: 680px; width: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
                 </div>
             </section>
 
@@ -777,38 +782,64 @@
             next();
         }
 
-        // Splash Cursor and Smooth Interaction Effects
+        // Attractive Magic Splash Cursor
         document.addEventListener('mousemove', function (e) {
-            // Create trail based on speed/frequency
-            if (Math.random() > 0.2) return;
+            // Create nice density without overloading
+            if (Math.random() > 0.3) return;
 
-            const trail = document.createElement('div');
-            trail.className = 'cursor-trail';
-            // Center on cursor
-            trail.style.left = (e.pageX - 6) + 'px';
-            trail.style.top = (e.pageY - 6) + 'px';
+            const shapes = ['✦', '★', '●', '✨'];
+            const colors = ['#FFD700', '#FF69B4', '#00BFFF', '#7CFC00', '#FF4500', '#9400D3'];
 
-            // Randomize color slightly
-            const colors = ['#2ecc71', '#3498db', '#f1c40f', '#e74c3c'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            trail.style.background = `radial-gradient(circle, ${color} 0%, rgba(255,255,255,0) 70%)`;
+            const sparkle = document.createElement('div');
+            sparkle.className = 'magic-sparkle';
+            sparkle.innerText = shapes[Math.floor(Math.random() * shapes.length)];
+            sparkle.style.color = colors[Math.floor(Math.random() * colors.length)];
 
-            document.body.appendChild(trail);
+            // Position at cursor
+            sparkle.style.left = (e.pageX - 10) + 'px';
+            sparkle.style.top = (e.pageY - 10) + 'px';
 
+            // Random slight offset for natural feel
+            const randomX = (Math.random() - 0.5) * 30;
+            const randomY = (Math.random() - 0.5) * 30;
+
+            // Apply slight initial offset via margin for variety
+            sparkle.style.marginLeft = randomX + 'px';
+            sparkle.style.marginTop = randomY + 'px';
+
+            document.body.appendChild(sparkle);
+
+            // Clean up
             setTimeout(() => {
-                if (trail.parentNode) trail.parentNode.removeChild(trail);
-            }, 600);
+                if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
+            }, 800);
         });
 
         document.addEventListener('click', function (e) {
             // Burst effect
-            for (let i = 0; i < 8; i++) {
-                const trail = document.createElement('div');
-                trail.className = 'cursor-trail';
-                trail.style.left = (e.pageX + (Math.random() * 30 - 15)) + 'px';
-                trail.style.top = (e.pageY + (Math.random() * 30 - 15)) + 'px';
-                document.body.appendChild(trail);
-                setTimeout(() => trail.remove(), 600);
+            const shapes = ['✦', '★', '●', '✨', '✴'];
+            const colors = ['#FFD700', '#FF69B4', '#00BFFF', '#7CFC00', '#FF4500'];
+
+            for (let i = 0; i < 12; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'magic-sparkle';
+                sparkle.innerText = shapes[Math.floor(Math.random() * shapes.length)];
+                sparkle.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+                // Scatter around click
+                const offsetX = (Math.random() - 0.5) * 60;
+                const offsetY = (Math.random() - 0.5) * 60;
+
+                sparkle.style.left = (e.pageX + offsetX) + 'px';
+                sparkle.style.top = (e.pageY + offsetY) + 'px';
+
+                // Slightly larger on click
+                sparkle.style.fontSize = (15 + Math.random() * 10) + 'px';
+
+                document.body.appendChild(sparkle);
+                setTimeout(() => {
+                    if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
+                }, 800);
             }
         });
     </script>
