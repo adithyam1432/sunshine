@@ -325,32 +325,28 @@
             text-shadow: none;
         }
 
-        /* Magic Splash Cursor */
-        .magic-sparkle {
+        /* Neon Particle Cursor */
+        .neon-particle {
             position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00f260, #0575e6);
             pointer-events: none;
             z-index: 9999;
-            animation: sparkleAnim 0.8s linear forwards;
-            font-size: 18px;
-            opacity: 1;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
-            /* Glowing text */
-            user-select: none;
+            animation: particleFade 0.6s ease-out forwards;
+            box-shadow: 0 0 10px rgba(0, 242, 96, 0.8);
+            mix-blend-mode: screen;
         }
 
-        @keyframes sparkleAnim {
+        @keyframes particleFade {
             0% {
-                transform: scale(0.5) rotate(0deg);
+                transform: scale(1);
                 opacity: 1;
             }
 
-            50% {
-                transform: scale(1.2) rotate(90deg);
-                opacity: 0.8;
-            }
-
             100% {
-                transform: scale(0) rotate(180deg) translateY(30px);
+                transform: scale(3);
                 opacity: 0;
             }
         }
@@ -563,7 +559,7 @@
                 <h3>ER Diagram</h3>
                 <div style="background: white; padding: 20px; border-radius: 8px;">
                     <img src="sources/er_diagram_chen.png"
-                        style="max-height: 680px; width: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
+                        style="max-height: 75vh; width: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
                 </div>
             </section>
 
@@ -782,64 +778,56 @@
             next();
         }
 
-        // Attractive Magic Splash Cursor
+        // Neon Particle Trail Effect
         document.addEventListener('mousemove', function (e) {
-            // Create nice density without overloading
-            if (Math.random() > 0.3) return;
+            // Density control
+            if (Math.random() > 0.4) return;
 
-            const shapes = ['✦', '★', '●', '✨'];
-            const colors = ['#FFD700', '#FF69B4', '#00BFFF', '#7CFC00', '#FF4500', '#9400D3'];
+            const particle = document.createElement('div');
+            particle.className = 'neon-particle';
 
-            const sparkle = document.createElement('div');
-            sparkle.className = 'magic-sparkle';
-            sparkle.innerText = shapes[Math.floor(Math.random() * shapes.length)];
-            sparkle.style.color = colors[Math.floor(Math.random() * colors.length)];
+            // Randomize colors slightly for visual richness
+            const randomType = Math.random();
+            if (randomType < 0.33) {
+                particle.style.background = 'linear-gradient(135deg, #ff00cc, #333399)'; // Pink/Purple
+                particle.style.boxShadow = '0 0 10px rgba(255, 0, 204, 0.8)';
+            } else if (randomType < 0.66) {
+                particle.style.background = 'linear-gradient(135deg, #00c6ff, #0072ff)'; // Blue
+                particle.style.boxShadow = '0 0 10px rgba(0, 198, 25, 0.8)';
+            } else {
+                particle.style.background = 'linear-gradient(135deg, #f09819, #edde5d)'; // Gold
+                particle.style.boxShadow = '0 0 10px rgba(240, 152, 25, 0.8)';
+            }
 
-            // Position at cursor
-            sparkle.style.left = (e.pageX - 10) + 'px';
-            sparkle.style.top = (e.pageY - 10) + 'px';
+            particle.style.left = (e.pageX - 4) + 'px';
+            particle.style.top = (e.pageY - 4) + 'px';
+            document.body.appendChild(particle);
 
-            // Random slight offset for natural feel
-            const randomX = (Math.random() - 0.5) * 30;
-            const randomY = (Math.random() - 0.5) * 30;
-
-            // Apply slight initial offset via margin for variety
-            sparkle.style.marginLeft = randomX + 'px';
-            sparkle.style.marginTop = randomY + 'px';
-
-            document.body.appendChild(sparkle);
-
-            // Clean up
             setTimeout(() => {
-                if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
-            }, 800);
+                if (particle.parentNode) particle.parentNode.removeChild(particle);
+            }, 600);
         });
 
         document.addEventListener('click', function (e) {
-            // Burst effect
-            const shapes = ['✦', '★', '●', '✨', '✴'];
-            const colors = ['#FFD700', '#FF69B4', '#00BFFF', '#7CFC00', '#FF4500'];
+            // Burst Explosion on Click
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'neon-particle';
+                particle.style.background = 'radial-gradient(circle, #fff, #ff0000)'; // Red burst
 
-            for (let i = 0; i < 12; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'magic-sparkle';
-                sparkle.innerText = shapes[Math.floor(Math.random() * shapes.length)];
-                sparkle.style.color = colors[Math.floor(Math.random() * colors.length)];
+                // Scatter
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 50;
+                const dx = Math.cos(angle) * dist;
+                const dy = Math.sin(angle) * dist;
 
-                // Scatter around click
-                const offsetX = (Math.random() - 0.5) * 60;
-                const offsetY = (Math.random() - 0.5) * 60;
+                particle.style.left = (e.pageX + dx) + 'px';
+                particle.style.top = (e.pageY + dy) + 'px';
 
-                sparkle.style.left = (e.pageX + offsetX) + 'px';
-                sparkle.style.top = (e.pageY + offsetY) + 'px';
-
-                // Slightly larger on click
-                sparkle.style.fontSize = (15 + Math.random() * 10) + 'px';
-
-                document.body.appendChild(sparkle);
+                document.body.appendChild(particle);
                 setTimeout(() => {
-                    if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
-                }, 800);
+                    if (particle.parentNode) particle.parentNode.removeChild(particle);
+                }, 600);
             }
         });
     </script>
